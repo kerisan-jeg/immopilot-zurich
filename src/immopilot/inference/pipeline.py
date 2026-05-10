@@ -20,6 +20,7 @@ from PIL import Image
 from immopilot import config
 from immopilot.cv.zero_shot_clip import PhotoFeatures, extract_features
 from immopilot.features.build_features import (
+    BINARY_LISTINGS,
     CATEGORICAL_FEATURES,
     NUMERIC_FEATURES,
     TEXT_DERIVED_BINARY,
@@ -31,7 +32,9 @@ from immopilot.nlp.listing_parser import parse_listing
 logger = logging.getLogger(__name__)
 
 
-FEATURE_COLUMNS = NUMERIC_FEATURES + CATEGORICAL_FEATURES + TEXT_DERIVED_BINARY
+FEATURE_COLUMNS = (
+    NUMERIC_FEATURES + CATEGORICAL_FEATURES + BINARY_LISTINGS + TEXT_DERIVED_BINARY
+)
 
 
 @dataclass

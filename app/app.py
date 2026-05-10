@@ -6,12 +6,9 @@ Three tabs:
   3. Q&A          — RAG chat about Zurich neighborhoods
 """
 
-from __future__ import annotations
-
 import logging
 
 import gradio as gr
-from PIL import Image
 
 from immopilot import config
 from immopilot.inference.pipeline import predict
@@ -21,15 +18,7 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s | %(levelname)s | %(
 
 
 # ───────────────────── Tab 1: Bewertung ─────────────────────
-def bewerten(
-    area_m2: float | None,
-    rooms: float | None,
-    kreis: int | None,
-    listing_text: str,
-    photo1: Image.Image | None,
-    photo2: Image.Image | None,
-    photo3: Image.Image | None,
-):
+def bewerten(area_m2, rooms, kreis, listing_text, photo1, photo2, photo3):
     structured = {
         "area_m2": area_m2 if area_m2 else None,
         "rooms": rooms if rooms else None,
@@ -66,10 +55,10 @@ def bewerten(
 
 
 # ───────────────────── Tab 2: Foto-Analyse ─────────────────────
-def foto_analyse(*photos: Image.Image | None):
+def foto_analyse(p1, p2, p3):
     from immopilot.cv.zero_shot_clip import extract_features as cv_extract
 
-    real_photos = [p for p in photos if p is not None]
+    real_photos = [p for p in (p1, p2, p3) if p is not None]
     if not real_photos:
         return "Bitte mindestens ein Foto hochladen."
     f = cv_extract(real_photos)
@@ -84,7 +73,7 @@ def foto_analyse(*photos: Image.Image | None):
 
 
 # ───────────────────── Tab 3: Q&A ─────────────────────
-def qa(question: str):
+def qa(question):
     if not question.strip():
         return "Bitte eine Frage stellen.", ""
     a = rag_answer(question)
@@ -155,4 +144,9 @@ Multimodaler Mietpreis-Assistent. Nicht zur Rechtsberatung. Fotos werden nicht g
 
 
 if __name__ == "__main__":
-    demo.launch(server_name="0.0.0.0", server_port=7860, show_error=True)
+    demo.launch(
+        server_name="127.0.0.1",
+        server_port=7860,
+        show_error=True,
+        show_api=False,  # workaround for gradio 5.1 schema-parsing bug on Windows
+    )
