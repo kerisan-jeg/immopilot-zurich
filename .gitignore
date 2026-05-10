@@ -67,3 +67,4 @@ mlruns/
 
 # --- HF cache ---
 .cache/
+!data/raw/rag_corpus/
