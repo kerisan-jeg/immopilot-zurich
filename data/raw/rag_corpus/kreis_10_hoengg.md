@@ -8,20 +8,50 @@ district: 10
 
 ## Lage und Struktur
 
-Der Kreis 10 ist zwei sehr unterschiedliche Quartiere — Höngg eher dörflich am Hang, Wipkingen urban-divers. Er umfasst die statistischen Quartiere Höngg, Wipkingen.
+Der Kreis 10 ist nordwestlicher Stadtkreis entlang der Limmat, mit Höngg auf dem Plateau über der Limmat und Wipkingen in der Senke. Er umfasst die statistischen Quartiere Höngg, Wipkingen.
 
-## Charakteristik und Sehenswürdigkeiten
+Mit ~41,000 Einwohnern auf 7.79 km² Fläche ist er einer der mittleren Stadtkreise.
 
-- Höngg liegt erhöht über der Limmat und ist bekannt für seinen Reblauf — ja, in Zürich gibt es Wein.
-- Wipkingen ist von der Limmat geprägt und hat seit den 2010er Jahren eine urbane Aufwertung erlebt.
-- Beide Quartiere haben gute Naherholungsmöglichkeiten: Käferberg, Limmatufer, Zoo-Wald.
-- Wipkingen hat einen eigenen Bahnhof und ist gut mit Bus und Tram erschlossen.
-- Höngg ist eines der Quartiere mit hohem Grünflächenanteil.
+## Charakter und Sehenswürdigkeiten
+
+- **Höngg** liegt erhöht über der Limmat und ist bekannt für seinen **Reblauf** — ja, in Zürich gibt es Wein. Der **Hönggerberg** ist Standort der ETH Hönggerberg (Hochschulkomplex).
+- **Wipkingen** ist von der Limmat geprägt und hat seit den 2010er Jahren eine starke urbane Aufwertung erlebt.
+- Der **Bahnhof Wipkingen** ist S-Bahn-Knoten, gut erschlossen.
+- Das **Käferberg-Wald** und der **Hönggerberg** sind grosse Naherholungsgebiete.
+- Der **Werdinsel** in der Limmat ist beliebter Bade- und Grillplatz im Sommer.
+- Das Quartier **Rütihof** in Höngg ist eines der ländlichsten Stadtquartiere mit Bauernhöfen und Feldern.
+- Der **Wipkingerplatz** ist Quartierzentrum mit Restaurants und Cafés.
+
+## Bevölkerung und Demografie
+
+Höngg eher bürgerlich-familiär, Wipkingen jung-divers durch Aufwertung. Viele Eigentümerwohnungen in Höngg.
+
+## Verkehr und Erreichbarkeit
+
+Bahnhof Wipkingen (S-Bahn), Tram 4, 11, 13, 14, Bus 33, 38, 46, 70 (Limmattalbahn).
+
+## Bildung und Forschung
+
+ETH Hönggerberg, mehrere Primar- und Sekundarschulen.
+
+## Gastronomie und Kultur
+
+Wipkingerplatz (Bars, Restaurants), in Höngg traditionellere Beizen. Limmatuferpromenade als Ausflugsziel.
+
+## Grünflächen und Naherholung
+
+Käferberg-Wald, Hönggerberg, Werdinsel, Limmatufer-Promenade. Viel Grün insgesamt.
+
+## Wirtschaft
+
+Wenig Grossunternehmen, viel KMU und Gewerbe.
 
 ## Mietpreise (Stand 2024)
 
-Der mediane Netto-Mietpreis im Kreis 10 liegt bei rund 24.1 CHF pro Quadratmeter (Mietpreiserhebung Statistik Stadt Zürich, 2024). Eher tiefes bis mittleres Preisniveau — Höngg traditionell etwas günstiger.
+Der mediane Netto-Mietpreis im Kreis 10 liegt bei rund **24.1 CHF pro Quadratmeter** (Mietpreiserhebung Statistik Stadt Zürich, 2024). Eine typische 3-Zimmer-Wohnung kostet im Median etwa **CHF 1,700 pro Monat netto**.
 
-## Einordnung im Stadtgefüge
+Eher tiefes bis mittleres Preisniveau. Höngg traditionell etwas günstiger, aber im Aufwind. Eine 3-Zimmer-Wohnung kostet CHF 1'600-2'100.
 
-Der Kreis 10 ist Teil der 12 Stadtkreise, die seit 1913 die administrative Grundgliederung der Stadt Zürich bilden. Die Stadt Zürich umfasst gesamthaft rund 449'000 Einwohner (Stand Ende 2024) auf 87.8 km² Fläche.
+## Charakter und Lebensstil
+
+Ruhig, grün, gut angebunden. Höngg ist familienorientiert-bürgerlich, Wipkingen jung-urban im Wandel.

@@ -8,20 +8,50 @@ district: 3
 
 ## Lage und Struktur
 
-Der Kreis 3 ist ein vielfältiger Wohnkreis mit historischen Quartieren und urbanem Flair. Er umfasst die statistischen Quartiere Alt-Wiedikon, Friesenberg, Sihlfeld.
+Der Kreis 3 ist westlich der Sihl, am Hang des Uetlibergs gelegen, von der Innenstadt bis zur Stadtgrenze Triemli. Er umfasst die statistischen Quartiere Alt-Wiedikon, Friesenberg, Sihlfeld.
 
-## Charakteristik und Sehenswürdigkeiten
+Mit ~51,000 Einwohnern auf 8.71 km² Fläche ist er einer der mittleren Stadtkreise.
 
-- Mit rund 51'000 Einwohnern einer der bevölkerungsreichsten Kreise Zürichs.
-- Sihlfeld ist das bevölkerungsreichste Quartier des Kreises mit etwa 21'600 Einwohnern.
-- Das Quartier Friesenberg liegt am Hang des Uetlibergs und beherbergt zahlreiche Wohngenossenschaften.
-- Der Kreis 3 hat sich in den letzten Jahren zu einem trendigen Wohnort mit lebendiger Gastronomie und Kultur entwickelt.
-- Wiedikon war eine eigenständige Gemeinde bis zur Eingemeindung 1893.
+## Charakter und Sehenswürdigkeiten
+
+- **Sihlfeld** ist mit ~21'600 Einwohnern das bevölkerungsreichste Quartier des Kreises und eines der dichtesten der Stadt.
+- Das Quartier **Friesenberg** liegt am Hang des Uetlibergs und beherbergt zahlreiche Wohnbaugenossenschaften (Familien-Heim Genossenschaft Zürich FGZ).
+- **Alt-Wiedikon** mit dem Quartierzentrum **Schmiede Wiedikon** ist seit den 2010er Jahren stark aufgewertet worden.
+- Der **Sihlcity** an der Grenze zu Wiedikon ist ein Shopping- und Entertainment-Center mit Kino, Restaurants, Hotel.
+- Das **Triemlispital** ist eines der grösseren Spitäler der Stadt.
+- Die **Bäckeranlage** ist ein beliebter Quartierpark im Sihlfeld.
+- Der **Idaplatz** mit seinem Marktplatz und vielen Restaurants ist Zentrum des Quartierlebens.
+
+## Bevölkerung und Demografie
+
+Multikulturell, viele junge Berufstätige und junge Familien. Aufwertung durch Zuzug Akademiker in den letzten 10 Jahren spürbar.
+
+## Verkehr und Erreichbarkeit
+
+Bahnhof Wiedikon (S-Bahn), Tram 9, 14, Trolleybus 32, 33, 67. S10 zum Uetliberg.
+
+## Bildung und Forschung
+
+Kantonsschule Freudenberg, mehrere Primar- und Sekundarschulen, Tanzschule.
+
+## Gastronomie und Kultur
+
+Boomende Bar- und Restaurant-Szene am Idaplatz, Schmiede Wiedikon, in der Birmensdorferstrasse. Internationale Küche dominiert.
+
+## Grünflächen und Naherholung
+
+Bäckeranlage, Friesenberg-Hänge, Uetliberg in Gehdistanz, Allmend Brunau für Sport.
+
+## Wirtschaft
+
+Stark gewerblich gemischt: kleine Läden, Handwerk, Gastronomie. Wenig Grossunternehmen.
 
 ## Mietpreise (Stand 2024)
 
-Der mediane Netto-Mietpreis im Kreis 3 liegt bei rund 25.7 CHF pro Quadratmeter (Mietpreiserhebung Statistik Stadt Zürich, 2024). Mittleres Preisniveau, jedoch mit steigender Tendenz wegen der wachsenden Beliebtheit bei jungen Berufstätigen und Familien.
+Der mediane Netto-Mietpreis im Kreis 3 liegt bei rund **25.7 CHF pro Quadratmeter** (Mietpreiserhebung Statistik Stadt Zürich, 2024). Eine typische 3-Zimmer-Wohnung kostet im Median etwa **CHF 1,800 pro Monat netto**.
 
-## Einordnung im Stadtgefüge
+Mittleres Preisniveau mit klarer Aufwärtstendenz. Alt-Wiedikon (besonders Idaplatz-Nähe) deutlich teurer als noch vor 10 Jahren. Sihlfeld bleibt etwas günstiger.
 
-Der Kreis 3 ist Teil der 12 Stadtkreise, die seit 1913 die administrative Grundgliederung der Stadt Zürich bilden. Die Stadt Zürich umfasst gesamthaft rund 449'000 Einwohner (Stand Ende 2024) auf 87.8 km² Fläche.
+## Charakter und Lebensstil
+
+Trendiges Wohnquartier für junge Berufstätige und Familien. Gentrifizierungsdruck spürbar — alteingesessene Mieter werden teils verdrängt.

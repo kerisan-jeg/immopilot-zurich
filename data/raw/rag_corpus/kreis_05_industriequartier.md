@@ -8,20 +8,50 @@ district: 5
 
 ## Lage und Struktur
 
-Der Kreis 5 ist die spektakulärste Transformation Zürichs vom Industriegebiet zum Tech- und Kulturhub. Er umfasst die statistischen Quartiere Gewerbeschule, Escher Wyss.
+Der Kreis 5 ist nördlich der Bahngleise, zwischen Limmat und Hardbrücke, ein ehemaliges Industriegebiet. Er umfasst die statistischen Quartiere Gewerbeschule, Escher Wyss.
 
-## Charakteristik und Sehenswürdigkeiten
+Mit ~16,500 Einwohnern auf 2.3 km² Fläche ist er einer der mittleren Stadtkreise.
 
-- Das ehemalige Industrieareal Zürich-West wurde seit den 2000er Jahren grundlegend umgestaltet.
-- Hier steht der Prime Tower (126 m), das höchste Gebäude Zürichs, sowie das ikonische Swissmill-Getreidesilo (118 m).
-- Das Toni-Areal beherbergt heute die Zürcher Hochschule der Künste; das Löwenbräu-Areal ist ein Zentrum für zeitgenössische Kunst.
-- Escher Wyss ist namensgebend für die ehemalige gleichnamige Maschinenfabrik, die hier stand.
-- Der Kreis 5 ist heute Sitz vieler Tech-Unternehmen, Werbeagenturen und kreativer Industrien.
+## Charakter und Sehenswürdigkeiten
+
+- Das ehemalige Industrieareal **Zürich-West** ist seit den 2000er Jahren komplett umgestaltet worden — heute Symbol für urbane Transformation.
+- Hier steht der **Prime Tower** (126 m), das höchste Gebäude Zürichs und Wahrzeichen von Zürich-West.
+- Das ikonische **Swissmill-Getreidesilo** (118 m) prägt die Skyline am Limmatufer.
+- Das **Toni-Areal** beherbergt heute die **Zürcher Hochschule der Künste (ZHdK)** und ist Zentrum für Kunst, Design und Musik.
+- Das **Löwenbräu-Areal** ist Kunstzentrum (Kunsthalle Zürich, Migros Museum, Galerien).
+- Der **Frau Gerolds Garten** und das **Viadukt** mit seinen Marktständen sind Lifestyle-Hotspots.
+- **Escher Wyss** ist namensgebend für die Maschinenfabrik, die hier ab 1805 stand — heute Hochhausquartier.
+
+## Bevölkerung und Demografie
+
+Junge urbane Bevölkerung dominiert. Viele Kreative, Tech-Mitarbeitende, internationale Berufstätige. Hoher Anteil Mieter-Haushalte.
+
+## Verkehr und Erreichbarkeit
+
+Bahnhof Hardbrücke (S-Bahn), Tram 4, 13, 17, Bus 33. Sehr gut Richtung Innenstadt und Flughafen.
+
+## Bildung und Forschung
+
+ZHdK (Toni-Areal), keine Pflichtschulen in nennenswerter Zahl.
+
+## Gastronomie und Kultur
+
+Sehr trendige Szene: Frau Gerolds Garten, Hard One, Renaissance-Hotel-Bar, viele Pop-up-Konzepte. Im Viadukt: Markthalle mit Foodständen.
+
+## Grünflächen und Naherholung
+
+Wenig klassisches Grün, aber Quartier-Pärke wie Pfingstweidpark, Limmatufer, Josefwiese (Grenze).
+
+## Wirtschaft
+
+Tech-Startups, Werbeagenturen, Architekturbüros, Medienunternehmen, Banken (Hyposwiss). Sitz von **Google Zürich** in unmittelbarer Nähe (Sihlpost).
 
 ## Mietpreise (Stand 2024)
 
-Der mediane Netto-Mietpreis im Kreis 5 liegt bei rund 27.5 CHF pro Quadratmeter (Mietpreiserhebung Statistik Stadt Zürich, 2024). Hochpreisig wegen Neubauten und Lifestyle-Image — vor 20 Jahren noch eines der günstigsten Quartiere.
+Der mediane Netto-Mietpreis im Kreis 5 liegt bei rund **27.5 CHF pro Quadratmeter** (Mietpreiserhebung Statistik Stadt Zürich, 2024). Eine typische 3-Zimmer-Wohnung kostet im Median etwa **CHF 1,950 pro Monat netto**.
 
-## Einordnung im Stadtgefüge
+Hochpreisig wegen Neubauten und Lifestyle-Image. Vor 20 Jahren noch eines der günstigsten Quartiere — heute Premium. Eine 3-Zimmer-Wohnung kostet CHF 2'200-2'800.
 
-Der Kreis 5 ist Teil der 12 Stadtkreise, die seit 1913 die administrative Grundgliederung der Stadt Zürich bilden. Die Stadt Zürich umfasst gesamthaft rund 449'000 Einwohner (Stand Ende 2024) auf 87.8 km² Fläche.
+## Charakter und Lebensstil
+
+Urban, modern, hipp, etwas glatt. Wer hier wohnt, will im Zentrum der kreativen und Tech-Szene sein.
