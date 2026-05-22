@@ -4,7 +4,7 @@
 > **Author**: _<your name>_ (`kerisan-jeg`)
 > **Submission**: 07 June 2026, 18:00
 > **Repository**: https://github.com/kerisan-jeg/immopilot-zurich
-> **Live demo**: _<Hugging Face Space URL — see §5, deployment pending>_
+> **Live demo**: https://huggingface.co/spaces/jegatker/immopilot-zurich
 > **Collaborators added**: @jasminh (Jasmin Heierli), @bkuehnis (Benjamin Kühnis)
 
 ---
@@ -367,9 +367,22 @@ future work (§6).
 
 ### 5.1 Status
 
-The Gradio app runs locally (`python app/app.py` → http://127.0.0.1:7860) with all three
-tabs functional end-to-end. Public deployment to a Hugging Face Space is **planned**
-(§6); the app is written to be Space-compatible.
+**Live**: https://huggingface.co/spaces/jegatker/immopilot-zurich
+
+The app is deployed as a Hugging Face Gradio Space (CPU basic, free tier) running
+Python 3.12 with the pinned dependency set. All three tabs work end-to-end on the
+hosted instance: rent prediction with calibration breakdown and German SHAP
+explanation, photo feature extraction, and cited RAG Q&A. The `ANTHROPIC_API_KEY` is
+configured as a Space secret. Locally it also runs via `python app/app.py`
+(http://127.0.0.1:7860).
+
+**Deployment notes** (documented for reproducibility):
+- HF Spaces defaults to Python 3.13, for which `torch==2.4.1` / `numpy==1.26.4` have no
+  wheels; pinned `python_version: "3.12"` in the Space README frontmatter to fix this.
+- HF's infrastructure `datasets` package requires a newer `pyarrow`; bumped
+  `pyarrow` to 19.0.1 to resolve a `pa.json_()` AttributeError at startup.
+- A root-level `app.py` launcher puts `src/` on the path and runs `app/app.py`, so the
+  Space entry-point convention is satisfied without restructuring the package.
 
 ### 5.2 Architecture: Training vs. Inference Separation
 
@@ -411,8 +424,7 @@ Concrete, prioritized to-dos to reach full marks:
    feature groups (ΔMAE) by retraining with each group removed.
 3. **RAG quantitative eval**: build a ~20-question gold set; measure retrieval hit-rate
    and answer faithfulness.
-4. **Deployment**: publish the Hugging Face Space and insert the live URL above.
-5. **Screenshots**: capture the three tabs.
+4. **Screenshots**: capture the three tabs for the docs folder.
 
 ---
 
