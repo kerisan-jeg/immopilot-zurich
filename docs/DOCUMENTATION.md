@@ -108,6 +108,13 @@ project rules. Loaders: [`load_listings.py`](https://github.com/kerisan-jeg/immo
   ([`build_features.py::make_preprocessor`](https://github.com/kerisan-jeg/immopilot-zurich/blob/main/src/immopilot/features/build_features.py)).
   The target is log-transformed (`np.log1p`, inverse `np.expm1`) because the raw rent
   distribution is right-skewed (skewness 2.41 → roughly symmetric after log).
+  *Known limitation (mild preprocessing leakage)*: the persisted preprocessor is currently
+  fit on the full feature table in `build_features.main` before the train/test split, so the
+  imputation medians and scaler statistics see the test rows. This is **not** target leakage
+  (the rent target is never used to fit the transformer), and the effect on the reported MAE/R²
+  is expected to be small, but it does make the test metrics slightly optimistic. The clean fix
+  is to fit the preprocessor inside a `Pipeline` on the training fold only; this is noted as
+  future work rather than retro-fitted here to avoid invalidating the frozen artifacts.
 - **Feature engineering and selection**: 25 features in four groups — engineered
   (`area_per_room`, `building_age`, `years_since_renovation`, `size_bucket`), district
   (`rent_median/mean_chf_per_m2`, `location_kreis`, `is_zurich`), amenities (balcony, view,
@@ -160,11 +167,15 @@ final estimate blends the model with a Stadt-Zürich median prior:
 - **Metrics used**: MAE, RMSE, R² on a held-out 10 % test split (stratified by `is_zurich`,
   seed 42), plus 5-fold cross-validated MAE on the training pool.
 - **Final results**: XGBoost — Test MAE **337.4 CHF**, RMSE 634.6, R² **0.775**, CV MAE
-  335.0 ± 3.0. These numbers are reproducible from committed artifacts: the frozen test-set
-  predictions and recomputed metrics are in
+  335.0 ± 3.0. These numbers are reproducible from committed artifacts: the trained
+  `models/xgboost.joblib` + `models/preprocessor.joblib` and the feature table are committed, so
+  `scripts/freeze_test_predictions.py` regenerates the frozen predictions and metrics in
   [`docs/repro/`](https://github.com/kerisan-jeg/immopilot-zurich/tree/main/docs/repro)
-  (regenerate with `scripts/freeze_test_predictions.py`); per-model metrics in
+  directly from the repo; per-model summaries in
   [`models/*.metrics.json`](https://github.com/kerisan-jeg/immopilot-zurich/tree/main/models).
+  Note: the R² 0.775 is the **Optuna-tuned** model (50 trials). Re-training XGBoost from
+  scratch with library-default hyper-parameters yields a lower R² (~0.67); the tuning is part
+  of the result, which is why the tuned model itself is committed rather than only the features.
 - **Test-set composition (important caveat)**: the test split has **67 rows, of which only 3
   are in the city of Zurich**. The headline R² therefore reflects Swiss-wide accuracy; it is
   *not* a robust measure of Zurich-specific accuracy, and the stated CHF 250 goal — framed
@@ -294,7 +305,13 @@ Not used during the semester (apartment interior images). Split 80/20 (seed 42) 
 | Iteration | Objective | Key changes | Model(s) used | Main metric | Change vs previous |
 | --- | --- | --- | --- | --- | --- |
 | 1 | Zero-shot baseline | condition prompts, argmax | CLIP zero-shot | Acc 0.72 / macro-F1 0.66 | — |
-| 2 | Fine-tune | ResNet50, frozen backbone, augmentation | ResNet50 | Acc 1.00 / macro-F1 1.00 (val) | +0.34 F1 |
+| 2 | Fine-tune | ResNet50, frozen backbone, augmentation | ResNet50 | Acc 1.00 / macro-F1 1.00 (best epoch, val) | +0.34 F1 |
+
+Note on the ResNet number: 1.00 is the **best-epoch** score on the 18-image validation
+set — i.e. the epoch was selected *using the same set it is scored on*. The final-epoch
+of the same run scored Acc 0.833 / macro-F1 0.836 (3 errors), recorded in
+[`models/resnet50_condition.metrics.json`](https://github.com/kerisan-jeg/immopilot-zurich/blob/main/models/resnet50_condition.metrics.json).
+Both numbers come from the same tiny set; neither is a clean held-out estimate (see 2C.5).
 
 Evaluation on the shared 18-image val set ([`eval_cv.py`](https://github.com/kerisan-jeg/immopilot-zurich/blob/main/scripts/eval_cv.py),
 confusion matrices in [`docs/cv_eval/`](https://github.com/kerisan-jeg/immopilot-zurich/tree/main/docs/cv_eval)).
@@ -302,13 +319,23 @@ confusion matrices in [`docs/cv_eval/`](https://github.com/kerisan-jeg/immopilot
 #### 2C.5 Evaluation and Error Analysis
 
 - **Metrics and/or visual checks**: accuracy, macro-F1, per-class report, confusion matrices.
-- **Final results**: ResNet50 fine-tuned **Acc/F1 1.00**; CLIP zero-shot **Acc 0.72 / F1 0.66**.
+- **Final results**: ResNet50 fine-tuned — **best-epoch** Acc/F1 **1.00**, **final-epoch**
+  Acc 0.833 / macro-F1 0.836 (same run); CLIP zero-shot **Acc 0.72 / F1 0.66**.
   CLIP nails the extremes (`modern`, `needs_renovation`) but collapses on the fuzzy `standard`
   class (recall 0.17 → 5/6 pushed to "modern"); fine-tuning learns that boundary.
-- **Error patterns and limitations**: the perfect ResNet score is **not** proof the task is
-  solved — the val set is tiny (18) and in-distribution with training (stock-photo style), so
-  it may separate photo style rather than true condition. This is why the **deployed** app
-  keeps zero-shot CLIP, which generalizes more safely to real uploads.
+- **Why two ResNet numbers, and which to trust**: the training loop checkpoints the
+  best-validation epoch (1.00) and `eval_cv.py` scores *that* checkpoint, so
+  `docs/cv_eval/cv_comparison.json` shows 1.00; the model's own metrics file additionally
+  recorded the final-epoch report (0.833). The honest reading is that **neither is a clean
+  estimate**: the "best" epoch was selected on the very 18 images it is then scored on
+  (selection-on-validation), and 18 images split 6/6/6 is far too small to separate true
+  condition from stock-photo style. The most defensible single statement is *"ResNet
+  fine-tuning clearly beats zero-shot CLIP on this small in-distribution set, somewhere in the
+  0.83–1.00 range, but the result is not a reliable generalization estimate."*
+- **Error patterns and limitations**: this is exactly why the **deployed** app keeps zero-shot
+  CLIP, which needs no training data and degrades more gracefully on real uploads. A trustworthy
+  ResNet claim would require a genuinely held-out, out-of-distribution test set of real listing
+  photos — listed as future work.
 
 #### 2C.6 Integration with Other Block(s)
 
