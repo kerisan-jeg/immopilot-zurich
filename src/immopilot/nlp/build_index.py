@@ -16,7 +16,6 @@ from dataclasses import dataclass
 from pathlib import Path
 
 import faiss
-import numpy as np
 import yaml
 from sentence_transformers import SentenceTransformer
 

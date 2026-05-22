@@ -95,7 +95,7 @@ def _load_district_medians() -> dict[int, float]:
         logger.warning("zurich_districts.parquet not found, calibration disabled")
         return {}
     df = pd.read_parquet(path)
-    return dict(zip(df["kreis"].astype(int), df["rent_median_chf_per_m2"].astype(float)))
+    return dict(zip(df["kreis"].astype(int), df["rent_median_chf_per_m2"].astype(float), strict=False))
 
 
 def _interval(point: float, residual_std_chf: float = 240.0) -> tuple[float, float]:

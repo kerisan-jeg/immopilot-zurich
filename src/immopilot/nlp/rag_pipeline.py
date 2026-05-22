@@ -6,10 +6,8 @@ import json
 import logging
 from dataclasses import dataclass
 from functools import lru_cache
-from pathlib import Path
 
 import faiss
-import numpy as np
 from sentence_transformers import SentenceTransformer
 
 from immopilot import config
@@ -72,7 +70,7 @@ def retrieve(query: str, top_k: int = config.RAG_TOP_K) -> list[RetrievedChunk]:
     q_emb = embedder.encode([query], normalize_embeddings=True).astype("float32")
     D, I = index.search(q_emb, top_k)
     out: list[RetrievedChunk] = []
-    for score, i in zip(D[0].tolist(), I[0].tolist()):
+    for score, i in zip(D[0].tolist(), I[0].tolist(), strict=False):
         if i < 0:
             continue
         c = chunks[i]

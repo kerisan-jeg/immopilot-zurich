@@ -250,14 +250,15 @@ def load_listings() -> pd.DataFrame:
 # ─────────────────────── CLI ───────────────────────
 def _inspect(csv_path: Path) -> None:
     df = pd.read_csv(csv_path, nrows=5, encoding="utf-8-sig")
-    n_rows = sum(1 for _ in open(csv_path, encoding="utf-8-sig")) - 1
+    with open(csv_path, encoding="utf-8-sig") as _fh:
+        n_rows = sum(1 for _ in _fh) - 1
     print(f"\nFile: {csv_path}  ({n_rows} rows)")
     print(f"\nColumns ({len(df.columns)}):")
     for c in df.columns:
         sample = str(df[c].iloc[0])[:60]
         print(f"  {c:30}  e.g.  {sample}")
     mapping = _detect_columns(df)
-    print(f"\nDetected canonical mapping:")
+    print("\nDetected canonical mapping:")
     for canonical in CANONICAL_COLUMNS:
         if canonical == "kreis":
             continue

@@ -113,7 +113,7 @@ def explain(
         feature_values = np.ones(n)  # fall back: keep everything
 
     pairs: list[tuple[str, float]] = []
-    for name, val, x in zip(feature_names, shap_values.tolist(), np.asarray(feature_values).tolist()):
+    for name, val, x in zip(feature_names, shap_values.tolist(), np.asarray(feature_values).tolist(), strict=False):
         if _is_onehot(name) and abs(x) < 0.5:
             continue  # inactive category for this flat → skip absence contribution
         pairs.append((_humanize(name), float(val)))
