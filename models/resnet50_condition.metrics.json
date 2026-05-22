@@ -1,4 +1,5 @@
 {
+  "_note": "best_macro_f1 (1.0) is the best validation epoch; the report/confusion_matrix below are the FINAL epoch of the same run (acc 0.833, macro-F1 0.836). Both are on the same 18-image set. See DOCUMENTATION.md 2C.5.",
   "best_macro_f1": 1.0,
   "report": {
     "modern": {

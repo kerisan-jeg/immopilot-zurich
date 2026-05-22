@@ -1,4 +1,5 @@
 {
+  "_note": "ResNet50 accuracy/macro_f1 = 1.00 is the BEST-EPOCH score on the 18-image validation set, evaluated on the same set used for epoch selection (selection-on-validation). It is optimistic, not a held-out estimate. The final epoch of the same run scored ~0.833 (see models/resnet50_condition.metrics.json). With only 18 images (6/6/6) the true generalization F1 is uncertain in the ~0.83-1.00 range. The deployed app uses zero-shot CLIP. See DOCUMENTATION.md section 2C.5.",
   "n_val": 18,
   "classes": [
     "modern",
