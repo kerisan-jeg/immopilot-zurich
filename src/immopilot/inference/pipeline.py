@@ -3,6 +3,17 @@
 Public API: ``predict(structured, listing_text, photos)`` → :class:`PredictionResult`.
 
 This is what the Gradio app calls.
+
+Calibration: When ``kreis`` and ``area_m2`` are both known, the raw model
+prediction is blended with a Stadt-Zürich median rent reference:
+
+    final = 0.6 * model + 0.4 * (median_chf_per_m2 × area_m2)
+
+This compensates for distribution shift: the model was trained on
+Switzerland-wide listings (n=664) with only ~27 Stadt-Zürich rows, so it
+systematically underestimates premium districts. The Stadt-Zürich median
+serves as a strong location prior. Both raw and reference values are
+exposed in :class:`PredictionResult` for transparency.
 """
 
 from __future__ import annotations
@@ -36,16 +47,25 @@ FEATURE_COLUMNS = (
     NUMERIC_FEATURES + CATEGORICAL_FEATURES + BINARY_LISTINGS + TEXT_DERIVED_BINARY
 )
 
+# Hybrid calibration weight for blending model with Stadt-Zürich median.
+# 0.0 = pure model · 1.0 = pure median × area · 0.4 = model dominates but is corrected.
+CALIBRATION_WEIGHT = 0.4
+
 
 @dataclass
 class PredictionResult:
-    point_estimate_chf: float
+    point_estimate_chf: float  # FINAL hybrid estimate
     interval_low_chf: float
     interval_high_chf: float
     photo_features: PhotoFeatures | None
     parsed_listing: dict[str, Any] | None
     explanation: Explanation | None
     feature_table: dict[str, Any] = field(default_factory=dict)
+    # New transparency fields:
+    model_estimate_chf: float = 0.0  # raw XGBoost output
+    reference_estimate_chf: float | None = None  # median × area, None if kreis/area unknown
+    calibration_applied: bool = False
+    confidence: str = "mittel"  # "hoch" / "mittel" / "niedrig"
 
     def to_dict(self) -> dict[str, Any]:
         d = asdict(self)
@@ -67,12 +87,41 @@ def _load_artifacts():
     return pre, model
 
 
-def _interval(point: float, residual_std_chf: float = 240.0) -> tuple[float, float]:
-    """Quick & defensible 80% interval based on observed residual std on the val set.
+@lru_cache(maxsize=1)
+def _load_district_medians() -> dict[int, float]:
+    """Load Stadt-Zürich median rent per kreis from MPE data."""
+    path = config.DATA_DIR / "processed" / "zurich_districts.parquet"
+    if not path.exists():
+        logger.warning("zurich_districts.parquet not found, calibration disabled")
+        return {}
+    df = pd.read_parquet(path)
+    return dict(zip(df["kreis"].astype(int), df["rent_median_chf_per_m2"].astype(float)))
 
-    Replace ``residual_std_chf`` once you have the true value from evaluation.
-    """
+
+def _interval(point: float, residual_std_chf: float = 240.0) -> tuple[float, float]:
+    """Quick & defensible 80% interval based on observed residual std on the val set."""
     return point - 1.28 * residual_std_chf, point + 1.28 * residual_std_chf
+
+
+def _confidence_level(
+    model_chf: float,
+    reference_chf: float | None,
+    has_listing_text: bool,
+    has_photos: bool,
+) -> str:
+    """Heuristic confidence based on signal availability and model/reference agreement."""
+    signal_count = 1 + int(has_listing_text) + int(has_photos)  # structured + optional inputs
+    if reference_chf is not None:
+        delta_pct = abs(model_chf - reference_chf) / max(reference_chf, 1.0)
+        agreement = "good" if delta_pct < 0.15 else ("ok" if delta_pct < 0.30 else "poor")
+    else:
+        agreement = "unknown"
+
+    if signal_count >= 3 and agreement == "good":
+        return "hoch"
+    if signal_count == 1 and agreement == "poor":
+        return "niedrig"
+    return "mittel"
 
 
 def predict(
@@ -111,10 +160,33 @@ def predict(
             df[col] = np.nan
     X = df[FEATURE_COLUMNS]
 
-    pred = float(model.predict(pre.transform(X))[0])
+    model_pred = float(model.predict(pre.transform(X))[0])
     if config.LOG_TARGET:
-        pred = float(np.expm1(pred))
-    low, high = _interval(pred)
+        model_pred = float(np.expm1(model_pred))
+
+    # ──────────── Hybrid calibration ────────────
+    reference_pred: float | None = None
+    final_pred = model_pred
+    calibrated = False
+
+    kreis = structured.get("kreis")
+    area = structured.get("area_m2")
+    if kreis is not None and area is not None:
+        try:
+            medians = _load_district_medians()
+            kreis_int = int(kreis)
+            if kreis_int in medians:
+                reference_pred = medians[kreis_int] * float(area)
+                final_pred = (1 - CALIBRATION_WEIGHT) * model_pred + CALIBRATION_WEIGHT * reference_pred
+                calibrated = True
+                logger.info(
+                    "Calibration: model=%.0f, reference=%.0f (%.1f CHF/m² × %.0f m²), final=%.0f",
+                    model_pred, reference_pred, medians[kreis_int], area, final_pred,
+                )
+        except Exception as e:  # noqa: BLE001
+            logger.warning("Calibration failed: %s", e)
+
+    low, high = _interval(final_pred)
 
     explanation: Explanation | None = None
     if explain_result:
@@ -124,18 +196,29 @@ def predict(
             explainer = shap.TreeExplainer(model)
             shap_values = explainer.shap_values(pre.transform(X))[0]  # (n_features,)
             # Convert to CHF contributions on the linear scale (approximation in log-space)
-            shap_chf = shap_values * (pred * 0.6)  # heuristic; replace with proper inverse
+            shap_chf = shap_values * (model_pred * 0.6)  # heuristic; replace with proper inverse
             feature_names = list(pre.get_feature_names_out())
-            explanation = explain(feature_names, shap_chf, pred)
+            explanation = explain(feature_names, shap_chf, final_pred)
         except Exception as e:  # noqa: BLE001
             logger.warning("Explanation failed: %s", e)
 
+    confidence = _confidence_level(
+        model_chf=model_pred,
+        reference_chf=reference_pred,
+        has_listing_text=bool(listing_text),
+        has_photos=bool(photos),
+    )
+
     return PredictionResult(
-        point_estimate_chf=pred,
+        point_estimate_chf=final_pred,
         interval_low_chf=max(0.0, low),
         interval_high_chf=high,
         photo_features=photo_feats,
         parsed_listing=parsed,
         explanation=explanation,
         feature_table=structured,
+        model_estimate_chf=model_pred,
+        reference_estimate_chf=reference_pred,
+        calibration_applied=calibrated,
+        confidence=confidence,
     )

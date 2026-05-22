@@ -3,16 +3,30 @@
 Why: the assignment rewards comparing approaches. By abstracting providers
 behind one interface we can A/B test Anthropic vs OpenAI in the NLP block
 without changing call sites.
+
+Robustness: if no API key is configured (e.g. on a fresh Hugging Face Space
+before the secret is set) or the API call fails, ``complete`` returns a clear
+fallback message instead of raising, so the app degrades gracefully rather than
+crashing the request.
 """
 
 from __future__ import annotations
 
+import logging
 from dataclasses import dataclass
 from typing import Literal
 
 from immopilot import config
 
+logger = logging.getLogger(__name__)
+
 ProviderName = Literal["anthropic", "openai"]
+
+_NO_KEY_MSG = (
+    "_(LLM nicht konfiguriert: Es ist kein API-Schlüssel hinterlegt. "
+    "Die Vorhersage funktioniert, aber Erklärungen und Q&A benötigen einen "
+    "ANTHROPIC_API_KEY in den Space-Secrets.)_"
+)
 
 
 @dataclass
@@ -36,6 +50,11 @@ class LLMClient:
         else:
             raise ValueError(f"Unknown provider: {self.provider}")
 
+    def _has_key(self) -> bool:
+        if self.provider == "anthropic":
+            return bool(config.ANTHROPIC_API_KEY)
+        return bool(config.OPENAI_API_KEY)
+
     def complete(
         self,
         system: str,
@@ -43,9 +62,20 @@ class LLMClient:
         max_tokens: int = 1024,
         temperature: float = 0.2,
     ) -> LLMResponse:
-        if self.provider == "anthropic":
-            return self._complete_anthropic(system, user, max_tokens, temperature)
-        return self._complete_openai(system, user, max_tokens, temperature)
+        if not self._has_key():
+            logger.warning("No API key for provider %s — returning fallback message.", self.provider)
+            return LLMResponse(text=_NO_KEY_MSG, provider=self.provider, model=self.model)
+        try:
+            if self.provider == "anthropic":
+                return self._complete_anthropic(system, user, max_tokens, temperature)
+            return self._complete_openai(system, user, max_tokens, temperature)
+        except Exception as e:  # noqa: BLE001
+            logger.exception("LLM call failed: %s", e)
+            return LLMResponse(
+                text=f"_(LLM-Aufruf fehlgeschlagen: {type(e).__name__}. Bitte später erneut versuchen.)_",
+                provider=self.provider,
+                model=self.model,
+            )
 
     # --- providers ---------------------------------------------------------
     def _complete_anthropic(
