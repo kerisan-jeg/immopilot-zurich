@@ -7,7 +7,7 @@
     "per_question": [
       {
         "id": 1,
-        "question": "Welcher Kreis ist die Zürcher Altstadt?",
+        "question": "Welcher Kreis ist die ZÃ¼rcher Altstadt?",
         "expected": [
           "kreis_01_altstadt.md"
         ],
@@ -39,7 +39,7 @@
       },
       {
         "id": 3,
-        "question": "Erzähl mir über das Industriequartier (Kreis 5).",
+        "question": "ErzÃ¤hl mir Ã¼ber das Industriequartier (Kreis 5).",
         "expected": [
           "kreis_05_industriequartier.md"
         ],
@@ -71,7 +71,7 @@
       },
       {
         "id": 5,
-        "question": "Was ist die Goldküste von Zürich?",
+        "question": "Was ist die GoldkÃ¼ste von ZÃ¼rich?",
         "expected": [
           "kreis_08_riesbach.md",
           "stadt_zurich_uebersicht.md"
@@ -88,7 +88,7 @@
       },
       {
         "id": 6,
-        "question": "Welches Quartier liegt am Zürichberg?",
+        "question": "Welches Quartier liegt am ZÃ¼richberg?",
         "expected": [
           "kreis_07_zuerichberg.md"
         ],
@@ -104,7 +104,7 @@
       },
       {
         "id": 7,
-        "question": "Was kann man über Schwamendingen sagen?",
+        "question": "Was kann man Ã¼ber Schwamendingen sagen?",
         "expected": [
           "kreis_12_schwamendingen.md"
         ],
@@ -120,7 +120,7 @@
       },
       {
         "id": 8,
-        "question": "Welche Quartiere gehören zu Zürich Nord?",
+        "question": "Welche Quartiere gehÃ¶ren zu ZÃ¼rich Nord?",
         "expected": [
           "kreis_11_zuerich_nord.md"
         ],
@@ -152,7 +152,7 @@
       },
       {
         "id": 10,
-        "question": "Was ist typisch für die Enge und Wollishofen?",
+        "question": "Was ist typisch fÃ¼r die Enge und Wollishofen?",
         "expected": [
           "kreis_02_enge.md"
         ],
@@ -168,7 +168,7 @@
       },
       {
         "id": 11,
-        "question": "Beschreibe Höngg und Wipkingen.",
+        "question": "Beschreibe HÃ¶ngg und Wipkingen.",
         "expected": [
           "kreis_10_hoengg.md"
         ],
@@ -200,7 +200,7 @@
       },
       {
         "id": 13,
-        "question": "Was gibt es über Unterstrass und Oberstrass zu wissen?",
+        "question": "Was gibt es Ã¼ber Unterstrass und Oberstrass zu wissen?",
         "expected": [
           "kreis_06_unterstrass.md"
         ],
@@ -216,7 +216,7 @@
       },
       {
         "id": 14,
-        "question": "Wie viele Stadtkreise hat Zürich insgesamt?",
+        "question": "Wie viele Stadtkreise hat ZÃ¼rich insgesamt?",
         "expected": [
           "stadt_zurich_uebersicht.md"
         ],
@@ -232,7 +232,7 @@
       },
       {
         "id": 15,
-        "question": "Welcher Kreis hat die höchsten Mietpreise?",
+        "question": "Welcher Kreis hat die hÃ¶chsten Mietpreise?",
         "expected": [
           "kreis_01_altstadt.md",
           "stadt_zurich_uebersicht.md"
@@ -249,7 +249,7 @@
       },
       {
         "id": 16,
-        "question": "Welcher Kreis ist am günstigsten zum Wohnen?",
+        "question": "Welcher Kreis ist am gÃ¼nstigsten zum Wohnen?",
         "expected": [
           "kreis_12_schwamendingen.md",
           "stadt_zurich_uebersicht.md"
@@ -266,7 +266,7 @@
       },
       {
         "id": 17,
-        "question": "Wo in Zürich gibt es viel Nachtleben und Ausgang?",
+        "question": "Wo in ZÃ¼rich gibt es viel Nachtleben und Ausgang?",
         "expected": [
           "kreis_04_aussersihl.md"
         ],
@@ -282,7 +282,7 @@
       },
       {
         "id": 18,
-        "question": "Welches Quartier ist bekannt für Familien und Grünflächen?",
+        "question": "Welches Quartier ist bekannt fÃ¼r Familien und GrÃ¼nflÃ¤chen?",
         "expected": [
           "kreis_10_hoengg.md",
           "kreis_12_schwamendingen.md"
@@ -299,7 +299,7 @@
       },
       {
         "id": 19,
-        "question": "Wo in Zürich liegt die ETH Hönggerberg?",
+        "question": "Wo in ZÃ¼rich liegt die ETH HÃ¶nggerberg?",
         "expected": [
           "kreis_10_hoengg.md"
         ],
