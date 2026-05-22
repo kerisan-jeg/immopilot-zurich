@@ -34,8 +34,9 @@ The original objectives and their **actual outcome**:
    *Achieved*: **MAE 337 CHF, R² 0.78** on a held-out test set — the R² target was met,
    the MAE target was not (discussed in §4.5).
 2. **CV**: extract apartment quality signals (condition, balcony, view) from photos.
-   *Achieved*: zero-shot CLIP feature extraction is implemented and integrated; a
-   fine-tuned classifier is prepared in code but not yet trained (see §3.2, §6).
+   *Achieved*: zero-shot CLIP feature extraction is implemented and deployed; a
+   ResNet50 classifier was additionally fine-tuned on a hand-collected dataset and
+   compared against the zero-shot baseline (see §3.2).
 3. **NLP/RAG**: produce factually grounded answers about Zurich neighborhoods with
    source citations. *Achieved*: implemented and qualitatively validated; a formal
    quantitative eval is future work (§4.4).
@@ -106,11 +107,13 @@ legal advice.
 
 ### 2.3 Image Data — Status
 
-The CV block currently operates **zero-shot** (CLIP), so no labeled training-image
-corpus was required for the deployed system. The fine-tuning path
-(`src/immopilot/cv/train_classifier.py`) is implemented and ready, but a labeled
-apartment-photo dataset has not yet been collected and the ResNet classifier has not
-been trained. This is the main planned extension (§6).
+The **deployed** CV block operates zero-shot (CLIP), so no labelled training corpus is
+required for the running system. For the model comparison, a small dataset of **89
+apartment interior photos** was hand-collected (Pexels, iStock, listing images) and
+labelled into three condition classes (`modern` 32, `standard` 29, `needs_renovation`
+28). It is split 80/20 (seed 42) into 71 train / 18 validation images via
+`scripts/make_val_split.py`. The dataset is intentionally small; its limitations are
+discussed honestly in §3.2 and §4.4.
 
 ### 2.4 Text Data — Sources, Chunking, Embedding
 
@@ -183,16 +186,50 @@ each split, `random_state = 42`. **5-fold KFold cross-validation** on the traini
 (§4.2). The MLP is excluded from CV (its torch wrapper is not `clone`-able and a diverged
 model's CV is uninformative).
 
-### 3.2 Computer Vision — Zero-Shot (deployed) vs. Fine-Tuned (planned)
+### 3.2 Computer Vision — Zero-Shot CLIP vs. Fine-Tuned ResNet50
 
-- **Zero-shot CLIP** (`src/immopilot/cv/zero_shot_clip.py`): the deployed approach.
+Two approaches to apartment-condition recognition are implemented and compared on an
+identical validation split (the assignment's required model-vs-baseline comparison).
+
+- **Zero-shot CLIP** (`src/immopilot/cv/zero_shot_clip.py`): the **deployed** approach.
   Apartment photos are scored against natural-language prompts (e.g. *"a photo of a
   modern, renovated apartment interior"* vs. *"…in need of renovation"*) to derive
   `condition_score`, `has_balcony`, `has_view`, and `kitchen_quality` **without any
   task-specific training**.
-- **Fine-tuned ResNet50** (`src/immopilot/cv/train_classifier.py`): implemented but
-  **not yet trained** — pending collection of a labeled apartment-photo dataset.
-  Planned as the main extension (§6).
+- **Fine-tuned ResNet50** (`src/immopilot/cv/train_classifier.py`): a ResNet50
+  (ImageNet-pretrained, only `layer4` + `fc` unfrozen) fine-tuned on a small
+  hand-collected dataset of **89 apartment interior photos** (Pexels + iStock + listing
+  images) labelled into `modern` / `standard` / `needs_renovation`. Training uses
+  augmentation (random-resized-crop, flip, colour-jitter), class-balanced cross-entropy
+  with label smoothing, AdamW, and selects the best epoch by validation macro-F1.
+  Data split 80/20 (seed 42) via `scripts/make_val_split.py` → 71 train / 18 val.
+
+**Comparison on the shared validation set** (18 images, 6 per class;
+`scripts/eval_cv.py`, confusion matrices in `docs/cv_eval/`):
+
+| Model | Accuracy | macro-F1 |
+|---|---|---|
+| **ResNet50 (fine-tuned)** | **1.00** | **1.00** |
+| CLIP (zero-shot) | 0.72 | 0.66 |
+
+Per-class behaviour is the interesting part. CLIP zero-shot classifies the **extremes**
+flawlessly — `modern` recall 1.00 and `needs_renovation` 1.00/1.00 — but collapses on the
+fuzzy middle class: `standard` recall is only **0.17** (5 of 6 "standard" rooms are pushed
+into "modern"), dragging its precision for `modern` down to 0.55. This is exactly what one
+would expect: "standard" has no crisp visual signature, and a generic vision-language model
+has no way to know where *this dataset* draws the modern/standard boundary. Fine-tuning
+fixes precisely that — the ResNet learns the dataset's decision boundary and separates all
+three classes on the validation set.
+
+**Honest interpretation (important).** The ResNet's perfect 1.00 must **not** be read as
+"the CV problem is solved". The validation set is tiny (18 images) and drawn from the same
+sources as the training images, so the network may partly be separating *stock-photo styles*
+rather than genuine apartment condition. The result demonstrates that fine-tuning closes
+CLIP's "standard"-class gap on in-distribution data; it does **not** establish robustness on
+real user uploads. For that reason the **deployed** app still uses zero-shot CLIP, which —
+having seen no training data from this distribution — degrades more gracefully on
+out-of-distribution photos. Strengthening this further (more data, an out-of-distribution
+test set from real listings) is noted in §6.
 
 ### 3.3 NLP / RAG — Implemented Strategy
 
@@ -269,7 +306,9 @@ README for the directory tree.
 - **Numeric**: 80/10/10 split stratified by `is_zurich`; reported metrics are
   held-out **test** MAE / RMSE / R², complemented by **5-fold CV MAE** (mean ± std) on
   the training pool for the three sklearn-style models.
-- **CV**: zero-shot, evaluated qualitatively on example images; no labeled test set yet.
+- **CV**: both the zero-shot CLIP baseline and the fine-tuned ResNet50 are evaluated on
+  the same 18-image validation split (accuracy, macro-F1, per-class report, confusion
+  matrix); see §4.3.
 - **RAG**: qualitative review on hand-written questions; formal metrics are future work.
 
 ### 4.2 Numeric Block — Results
@@ -306,9 +345,25 @@ structured to make feature-group ablations straightforward.
 
 ### 4.3 CV Block — Results
 
-Zero-shot CLIP is evaluated qualitatively: on clear interior photos it separates modern
-vs. dated interiors and detects balconies/views plausibly. A quantitative comparison
-against a fine-tuned ResNet50 is pending data collection (§6).
+Both models were evaluated on the identical 18-image validation split
+(`scripts/eval_cv.py`; confusion matrices saved to `docs/cv_eval/`):
+
+| Model | Accuracy | macro-F1 | `modern` F1 | `standard` F1 | `needs_renovation` F1 |
+|---|---:|---:|---:|---:|---:|
+| **ResNet50 (fine-tuned)** | **1.00** | **1.00** | 1.00 | 1.00 | 1.00 |
+| CLIP (zero-shot) | 0.72 | 0.66 | 0.71 | 0.29 | 1.00 |
+
+The decisive difference is the **`standard` class**: CLIP recall there is only 0.17 (it
+labels 5 of 6 standard rooms as "modern"), whereas the fine-tuned ResNet separates all
+three classes. CLIP handles the visually unambiguous extremes (`modern`,
+`needs_renovation`) well but cannot locate the dataset-specific boundary of the fuzzy
+middle class — which is exactly what supervised fine-tuning supplies.
+
+**This result is reported with explicit caveats** (see §4.4): the validation set is small
+(18 images) and in-distribution with training, so the ResNet's perfect score reflects
+in-distribution separability — possibly partly of photo *style* — rather than proven
+robustness on real uploads. The takeaway is directional ("fine-tuning closes CLIP's
+middle-class gap"), not "the task is solved".
 
 ### 4.4 NLP / RAG Block — Results
 
@@ -343,6 +398,12 @@ future work (§6).
   Zurich-specific one. Mitigation: hybrid median calibration. Proper fix: acquire a
   Zurich-specific listing dataset and retrain / reweight.
 - **Photos may be staged** → zero-shot CV features biased toward "modern".
+- **CV dataset is small and in-distribution**: the ResNet50 comparison rests on 89
+  photos (18 validation), all from stock/listing sources. The perfect validation score
+  (§4.3) therefore reflects in-distribution separability — and may partly capture
+  photo-style rather than condition — not robustness on real, messy user uploads. This
+  is why the deployed app keeps the zero-shot baseline, which degrades more gracefully
+  off-distribution.
 - **Rent control / `Bestandsmieten`** (sitting-tenant rents) are not modeled; the system
   estimates *advertised* market rent.
 - **Metric variance**: 5-fold CV quantifies variance — XGBoost is very stable
@@ -417,9 +478,10 @@ To be added under `docs/screenshots/`:
 
 Concrete, prioritized to-dos to reach full marks:
 
-1. **CV fine-tuning**: collect ~100+ labeled apartment photos, train ResNet50 via
-   `train_classifier.py`, report accuracy / macro-F1 / confusion matrix, and compare
-   against zero-shot CLIP.
+1. **CV robustness**: the ResNet50 vs. CLIP comparison is complete (§3.2, §4.3); the
+   natural next step is an **out-of-distribution test set** (real listing photos from a
+   different source) to test whether the fine-tuned model generalizes beyond stock-photo
+   style, plus more training data per class.
 2. **Numeric ablation**: quantify the contribution of CV, district, and text-derived
    feature groups (ΔMAE) by retraining with each group removed.
 3. **RAG quantitative eval**: build a ~20-question gold set; measure retrieval hit-rate
@@ -440,3 +502,8 @@ All key pipeline specifics have been confirmed against the committed code:
 - [x] **Outlier bounds**: rent kept within CHF 500–12'000
   (`data/load_listings.py::basic_outlier_filter`).
 - [x] **XGBoost tuning**: Optuna, 50 trials, TPE sampler, seed 42 (`models/train_xgb.py`).
+- [x] **CV dataset**: 89 labelled apartment photos (modern 32 / standard 29 /
+  needs_renovation 28), 80/20 split seed 42 (`scripts/make_val_split.py`).
+- [x] **CV comparison**: ResNet50 fine-tuned (acc/F1 1.00) vs. CLIP zero-shot
+  (acc 0.72 / F1 0.66) on the 18-image val set (`scripts/eval_cv.py`,
+  `docs/cv_eval/cv_comparison.json`).
