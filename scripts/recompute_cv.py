@@ -43,7 +43,16 @@ def main() -> None:
     kf = KFold(n_splits=config.N_SPLITS_CV, shuffle=True, random_state=config.SEED)
 
     print(f"5-fold CV on training pool (n={len(y_full)}), target log1p={config.LOG_TARGET}\n")
-    for name in SKLEARN_MODELS:
+    available = [n for n in SKLEARN_MODELS if (config.MODELS_DIR / f"{n}.joblib").exists()]
+    missing = [n for n in SKLEARN_MODELS if n not in available]
+    if missing:
+        print(f"Skipping (no committed .joblib): {', '.join(missing)} "
+              f"-- retrain via `make train-numeric` to include them.\n")
+    if not available:
+        print("No model .joblib files found. Run `make train-numeric` first.")
+        return
+
+    for name in available:
         model_path = config.MODELS_DIR / f"{name}.joblib"
         model = joblib.load(model_path)
 
