@@ -340,8 +340,27 @@ geographic coordinates (`lat`/`lon`) and `area_per_room` act as the main downwar
 adjustments. This is consistent with rent being primarily a function of *where* and
 *how big*.
 
-**Ablation — does CV / district / text add value?** — *planned* (§6); the pipeline is
-structured to make feature-group ablations straightforward.
+**Ablation — does each feature group add value?** Each interpretable feature group was
+removed in turn and XGBoost retrained (same split, same preprocessing, project-default
+params; `scripts/ablation_numeric.py`, results in `docs/ablation/`). ΔMAE is the increase
+in test MAE when the group is dropped — positive means the group helps:
+
+| Dropped group | Test MAE (CHF) | ΔMAE | # cols |
+|---|---:|---:|---:|
+| *(baseline — all features)* | 338.2 | — | 25 |
+| Text-derived (`is_luxurious`, `is_furnished`, `is_temporary`) | 355.4 | **+17.1** | 3 |
+| District (`rent_median/mean_chf_per_m2`, `location_kreis`, `is_zurich`) | 351.7 | +13.5 | 4 |
+| Amenities (balcony, view, elevator, garage, parking, fireplace) | 348.0 | +9.8 | 6 |
+| CV-derived (`condition_score`, `kitchen_quality`) | 343.8 | +5.6 | 2 |
+
+**Every group contributes positively** — the multimodal design is justified, each modality
+pulls its weight. Two honest caveats: (1) the test set is small (~66 rows), so the ΔMAE
+values (6–17 CHF) are close relative to the champion's CV std (±3 CHF) — the *ranking*
+should not be over-interpreted, but the *sign* (all positive) is the robust finding. (2) The
+CV group's modest +5.6 is expected: most training rows have no real photo, so
+`condition_score` defaults to 0.5; the signal comes from the minority of rows with genuine
+values. The baseline MAE (338) matches the independently reported XGBoost test MAE (337),
+confirming the ablation faithfully reproduces the production pipeline.
 
 ### 4.3 CV Block — Results
 
@@ -482,11 +501,9 @@ Concrete, prioritized to-dos to reach full marks:
    natural next step is an **out-of-distribution test set** (real listing photos from a
    different source) to test whether the fine-tuned model generalizes beyond stock-photo
    style, plus more training data per class.
-2. **Numeric ablation**: quantify the contribution of CV, district, and text-derived
-   feature groups (ΔMAE) by retraining with each group removed.
-3. **RAG quantitative eval**: build a ~20-question gold set; measure retrieval hit-rate
+2. **RAG quantitative eval**: build a ~20-question gold set; measure retrieval hit-rate
    and answer faithfulness.
-4. **Screenshots**: capture the three tabs for the docs folder.
+3. **Screenshots**: capture the three tabs for the docs folder.
 
 ---
 
@@ -507,3 +524,6 @@ All key pipeline specifics have been confirmed against the committed code:
 - [x] **CV comparison**: ResNet50 fine-tuned (acc/F1 1.00) vs. CLIP zero-shot
   (acc 0.72 / F1 0.66) on the 18-image val set (`scripts/eval_cv.py`,
   `docs/cv_eval/cv_comparison.json`).
+- [x] **Feature ablation**: all four groups have positive ΔMAE (text +17, district +14,
+  amenities +10, cv +6); baseline 338 ≈ reported 337 (`scripts/ablation_numeric.py`,
+  `docs/ablation/ablation_numeric.json`).
