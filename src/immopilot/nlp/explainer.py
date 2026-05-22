@@ -1,9 +1,13 @@
 """Explain a numeric prediction in natural language.
 
 Pipeline:
-1. Use SHAP TreeExplainer on the chosen model.
-2. Extract the top-k positive and negative contributors.
-3. Pass them, plus the prediction, to the LLM for a short, faithful explanation.
+1. Use SHAP TreeExplainer on the chosen model (contributions in log space).
+2. The caller converts them to faithful CHF effects (see pipeline.py).
+3. Select the *active* contributors — for one-hot features only the category that
+   actually applies to this flat is kept (absence contributions like "not 'other'"
+   are dropped, since they confuse non-expert readers).
+4. Translate technical feature names into readable German labels.
+5. Pass the top-k positive and negative factors to the LLM for a short explanation.
 """
 
 from __future__ import annotations
@@ -12,7 +16,6 @@ import logging
 from dataclasses import dataclass
 
 import numpy as np
-import pandas as pd
 
 from immopilot.nlp.llm_client import LLMClient
 
@@ -24,6 +27,33 @@ class Explanation:
     text: str
     top_positive: list[tuple[str, float]]
     top_negative: list[tuple[str, float]]
+
+
+# ── Readable labels for one-hot / engineered feature columns ──────────────────
+KREIS_NAMES = {
+    "1": "Altstadt", "2": "Enge/Wollishofen", "3": "Wiedikon", "4": "Aussersihl",
+    "5": "Industriequartier", "6": "Unterstrass/Oberstrass", "7": "Zürichberg",
+    "8": "Riesbach/Seefeld", "9": "Altstetten", "10": "Höngg/Wipkingen",
+    "11": "Zürich-Nord", "12": "Schwamendingen",
+}
+SIZE_NAMES = {"xs": "sehr klein", "s": "klein", "m": "mittel", "l": "gross", "xl": "sehr gross"}
+
+
+def _humanize(name: str) -> str:
+    """Turn a transformed feature name into a readable German label."""
+    if name.startswith("location_kreis_"):
+        k = name[len("location_kreis_"):]
+        if k == "other":
+            return "Lage ausserhalb der erfassten Stadtkreise"
+        return f"Stadtkreis {k} ({KREIS_NAMES.get(k, k)})"
+    if name.startswith("size_bucket_"):
+        b = name[len("size_bucket_"):]
+        return f"Wohnungsgrösse {SIZE_NAMES.get(b, b)}"
+    return name
+
+
+def _is_onehot(name: str) -> bool:
+    return name.startswith("location_kreis_") or name.startswith("size_bucket_")
 
 
 SYSTEM_PROMPT = """Du bist ein hilfreicher Assistent, der Mietpreis-Vorhersagen für Wohnungen in Zürich auf Deutsch erklärt.
@@ -43,8 +73,6 @@ Regeln:
   * has_balcony, has_view, has_elevator, has_garage, has_parking, has_fireplace = Ausstattung
   * is_zurich = Lage in der Stadt Zürich
   * is_new_building = Neubau
-  * location_kreis_X = Stadtkreis X
-  * size_bucket_X = Wohnungsgrösse-Kategorie
 - Sei sachlich und neutral, kein Werbe-Ton.
 - Erkläre zuerst die wichtigsten preistreibenden Faktoren, dann die preisdrückenden."""
 
@@ -61,21 +89,37 @@ Erkläre dem Nutzer auf Deutsch in 2-4 Sätzen, warum das Modell zu diesem Preis
 
 def _format_factors(factors: list[tuple[str, float]]) -> str:
     if not factors:
-        return "  (none)"
-    return "\n".join(f"  - {name}: contribution CHF {val:+.0f}" for name, val in factors)
+        return "  (keine)"
+    return "\n".join(f"  - {name}: Beitrag CHF {val:+.0f}" for name, val in factors)
 
 
 def explain(
     feature_names: list[str],
-    shap_values: np.ndarray,  # shape (n_features,)
+    shap_values: np.ndarray,  # CHF contributions, shape (n_features,)
     prediction: float,
+    feature_values: np.ndarray | None = None,  # transformed feature values, same shape
     top_k: int = 3,
     provider: str | None = None,
 ) -> Explanation:
-    pairs = list(zip(feature_names, shap_values.tolist()))
-    pairs.sort(key=lambda p: p[1])
-    negatives = [(n, v) for n, v in pairs if v < 0][:top_k]
-    positives = sorted([(n, v) for n, v in pairs if v > 0], key=lambda p: -p[1])[:top_k]
+    """Build a faithful, readable explanation.
+
+    If ``feature_values`` is given, one-hot columns that are inactive for this
+    instance (value ≈ 0) are dropped — their SHAP "absence" contribution would
+    otherwise read as e.g. "+501 CHF because the flat is NOT 'other'", which is
+    technically valid but confusing. Active categories are relabelled readably.
+    """
+    n = len(feature_names)
+    if feature_values is None:
+        feature_values = np.ones(n)  # fall back: keep everything
+
+    pairs: list[tuple[str, float]] = []
+    for name, val, x in zip(feature_names, shap_values.tolist(), np.asarray(feature_values).tolist()):
+        if _is_onehot(name) and abs(x) < 0.5:
+            continue  # inactive category for this flat → skip absence contribution
+        pairs.append((_humanize(name), float(val)))
+
+    positives = sorted([(nm, v) for nm, v in pairs if v > 0], key=lambda p: -p[1])[:top_k]
+    negatives = sorted([(nm, v) for nm, v in pairs if v < 0], key=lambda p: p[1])[:top_k]
 
     client = LLMClient(provider=provider)  # type: ignore[arg-type]
     resp = client.complete(

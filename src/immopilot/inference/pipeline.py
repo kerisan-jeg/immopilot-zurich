@@ -194,11 +194,21 @@ def predict(
             import shap
 
             explainer = shap.TreeExplainer(model)
-            shap_values = explainer.shap_values(pre.transform(X))[0]  # (n_features,)
-            # Convert to CHF contributions on the linear scale (approximation in log-space)
-            shap_chf = shap_values * (model_pred * 0.6)  # heuristic; replace with proper inverse
+            Xt_explain = pre.transform(X)
+            shap_values = explainer.shap_values(Xt_explain)[0]  # (n_features,) in LOG space
+            # SHAP values are additive in the model's training space (log1p rent):
+            #   base + sum(shap) == predicted_log.
+            # Convert each to a faithful marginal CHF effect via the expm1 inverse:
+            #   c_i = expm1(full_log) - expm1(full_log - shap_i)
+            # i.e. how many CHF the prediction drops when feature i's log-contribution
+            # is removed. These are real per-feature CHF effects (not a heuristic scaling).
+            # Because expm1 is non-linear, the c_i sum only approximately to the total;
+            # this is documented in DOCUMENTATION.md (2A.6).
+            base_log = float(np.asarray(explainer.expected_value).ravel()[0])
+            full_log = base_log + float(shap_values.sum())
+            shap_chf = np.expm1(full_log) - np.expm1(full_log - shap_values)
             feature_names = list(pre.get_feature_names_out())
-            explanation = explain(feature_names, shap_chf, final_pred)
+            explanation = explain(feature_names, shap_chf, final_pred, feature_values=Xt_explain[0])
         except Exception as e:  # noqa: BLE001
             logger.warning("Explanation failed: %s", e)
 
