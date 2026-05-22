@@ -120,7 +120,7 @@ project rules. Loaders: [`load_listings.py`](https://github.com/kerisan-jeg/immo
   (`rent_median/mean_chf_per_m2`, `location_kreis`, `is_zurich`), amenities (balcony, view,
   elevator, garage, parking, fireplace), and CV/text-derived
   (`condition_score`, `kitchen_quality`, `is_luxurious`, `is_furnished`, `is_temporary`).
-  See [`build_features.py`, lines 30-75](https://github.com/kerisan-jeg/immopilot-zurich/blob/main/src/immopilot/features/build_features.py#L30-L75).
+  See [`build_features.py::add_engineered_columns`](https://github.com/kerisan-jeg/immopilot-zurich/blob/main/src/immopilot/features/build_features.py#L78) (the engineering logic) and `make_preprocessor` (#L159).
 
 **EDA key findings** (full notebook:
 [`01_eda_numeric.ipynb`](https://github.com/kerisan-jeg/immopilot-zurich/blob/main/notebooks/01_eda_numeric.ipynb), 7 plots):
@@ -143,11 +143,13 @@ data caveat — only **27 / 664** rows are in the city of Zurich.
 | 1 | Baseline | Ridge regression on all features | Linear (Ridge) | Test MAE 428.0 / R² 0.721 | — |
 | 2 | Non-linear | Bagging trees | Random Forest | Test MAE 365.4 / R² 0.751 | −62.6 CHF MAE |
 | 3 | Boosting + tuning | XGBoost, Optuna 50 trials | XGBoost (champion) | **Test MAE 337.4 / R² 0.775** | −28.0 CHF MAE |
-| 4 | Deep net check | Small MLP | MLP | Test MAE 3870 / R² −196 (diverged) | rejected |
+| 4 | Deep net check | Small MLP | MLP | Test MAE 3870 / R² −196 (run diverged) | excluded — not a fair baseline |
 
 Cross-validated MAE (5-fold, training pool): Linear 418.8 ± 26.0, RF 379.0 ± 18.2,
-**XGBoost 335.0 ± 3.0**. XGBoost wins on every metric and is the most stable (±3 CHF), and
-its test MAE (337) ≈ CV mean (335), so the test split is representative. CV recomputed via
+**XGBoost 335.0 ± 3.0**. XGBoost wins on every metric and has the lowest fold-to-fold spread,
+and its test MAE (337) ≈ CV mean (335), so the test split is representative. (The exact CV std
+is mildly platform-dependent — re-runs on other machines land around 333 ± 5; the point is the
+*relative* stability versus Linear/RF, not the precise ±3.) CV recomputed via
 [`recompute_cv.py`](https://github.com/kerisan-jeg/immopilot-zurich/blob/main/scripts/recompute_cv.py).
 
 **Feature-group ablation** ([`ablation_numeric.py`](https://github.com/kerisan-jeg/immopilot-zurich/blob/main/scripts/ablation_numeric.py)):
@@ -184,8 +186,12 @@ final estimate blends the model with a Stadt-Zürich median prior:
 - **Error patterns and likely causes**: the MAE misses the aspirational CHF 250 target; the
   root cause is Zurich-data scarcity (27 rows total) — the model learns a Swiss-average price
   surface, not a Zurich-specific one. This is mitigated (not solved) by the hybrid median
-  calibration. The MLP diverged, consistent with Grinsztajn et al. (NeurIPS 2022) on tabular
-  data.
+  calibration. The MLP was **not** a fair deep-learning baseline: its run diverged (test
+  RMSE 18792 ≫ MAE 3870 indicates a few exploded predictions in log space, i.e. a training
+  pathology — likely learning-rate / output-scaling), so its R² −196 reflects a broken run, not
+  evidence that trees beat neural nets on tabular data. We report it for transparency but do not
+  draw a DL-vs-trees conclusion from it; a fair comparison would require debugging the MLP
+  (output clipping, LR schedule) and is left as future work.
 
 #### 2A.6 Integration with Other Block(s)
 
@@ -227,7 +233,8 @@ RAG corpus: [`data/raw/rag_corpus/`](https://github.com/kerisan-jeg/immopilot-zu
   normalized vectors). Build: [`build_index.py`](https://github.com/kerisan-jeg/immopilot-zurich/blob/main/src/immopilot/nlp/build_index.py).
 - **Prompt design / retrieval setup**: top-k = 5 retrieval; the system prompt instructs the
   LLM to answer only from the provided context, cite sources inline as `[Source N]`, and reply
-  in the user's language ([`rag_pipeline.py`, lines 40-70](https://github.com/kerisan-jeg/immopilot-zurich/blob/main/src/immopilot/nlp/rag_pipeline.py#L40-L70)).
+  in the user's language (the `SYSTEM_PROMPT` and its "answer only from context" rule,
+  [`rag_pipeline.py`](https://github.com/kerisan-jeg/immopilot-zurich/blob/main/src/immopilot/nlp/rag_pipeline.py#L36)).
 
 #### 2B.3 Approach Selection
 

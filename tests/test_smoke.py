@@ -2,7 +2,7 @@
 
 These do NOT require trained models or API keys. They verify that the package
 imports cleanly, paths exist, and the feature engineering doesn't throw on a
-toy DataFrame. Heavier integration tests live in `test_pipeline.py` and run
+toy DataFrame. They need no trained models, data, or API keys and run
 locally on demand.
 """
 

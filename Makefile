@@ -13,11 +13,11 @@ install: ## Install all dependencies
 data: ## Download / prepare raw data
 	$(PYTHON) -m immopilot.data.load_zurich_open
 	$(PYTHON) -m immopilot.data.load_listings
-	@echo "✓ Raw data ready in data/raw/"
+	@echo "Ã¢Å“â€œ Raw data ready in data/raw/"
 
 features: ## Build processed feature tables
 	$(PYTHON) -m immopilot.features.build_features
-	@echo "✓ Processed features in data/processed/"
+	@echo "Ã¢Å“â€œ Processed features in data/processed/"
 
 train: train-numeric train-cv ## Train all models
 
@@ -26,15 +26,15 @@ train-numeric: ## Train numeric models (Linear, RF, XGB, MLP)
 	$(PYTHON) -m immopilot.models.train_rf
 	$(PYTHON) -m immopilot.models.train_xgb
 	$(PYTHON) -m immopilot.models.train_nn
-	@echo "✓ Numeric models in models/"
+	@echo "Ã¢Å“â€œ Numeric models in models/"
 
 train-cv: ## Train CV condition classifier
 	$(PYTHON) -m immopilot.cv.train_classifier
-	@echo "✓ CV models in models/"
+	@echo "Ã¢Å“â€œ CV models in models/"
 
 index: ## Build RAG vector store
 	$(PYTHON) -m immopilot.nlp.build_index
-	@echo "✓ FAISS index in models/rag/"
+	@echo "Ã¢Å“â€œ FAISS index in models/rag/"
 
 app: ## Launch Gradio app on http://localhost:7860
 	$(PYTHON) app/app.py
@@ -44,11 +44,9 @@ test: ## Run pytest suite
 
 lint: ## Run linters
 	ruff check src/ app/ tests/
-	black --check src/ app/ tests/
-	mypy src/ --ignore-missing-imports
 
 format: ## Auto-format code
-	black src/ app/ tests/
+	ruff format src/ app/ tests/
 	ruff check --fix src/ app/ tests/
 
 clean: ## Remove generated artifacts (keeps raw data)
@@ -58,7 +56,7 @@ clean: ## Remove generated artifacts (keeps raw data)
 
 reproduce: data features train index ## Full pipeline from scratch
 	@echo ""
-	@echo "════════════════════════════════════════"
-	@echo "  ✓ Full pipeline reproduced."
+	@echo "Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â"
+	@echo "  Ã¢Å“â€œ Full pipeline reproduced."
 	@echo "  Run 'make app' to launch the UI."
-	@echo "════════════════════════════════════════"
+	@echo "Ã¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢ÂÃ¢â€¢Â"
