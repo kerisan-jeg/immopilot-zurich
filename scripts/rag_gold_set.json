@@ -1,0 +1,25 @@
+{
+  "_comment": "Gold set for RAG evaluation. Each item: a question and the source file(s) that should appear in the retrieved top-k (hit-rate). 'expected_source' must match the chunk 'source' field exactly. Review the expected_source values against the actual corpus content and correct if wrong.",
+  "questions": [
+    {"id": 1,  "question": "Welcher Kreis ist die Zürcher Altstadt?", "expected_source": ["kreis_01_altstadt.md"]},
+    {"id": 2,  "question": "Was zeichnet das Seefeld in Kreis 8 aus?", "expected_source": ["kreis_08_riesbach.md"]},
+    {"id": 3,  "question": "Erzähl mir über das Industriequartier (Kreis 5).", "expected_source": ["kreis_05_industriequartier.md"]},
+    {"id": 4,  "question": "Wie ist Wiedikon zum Wohnen?", "expected_source": ["kreis_03_wiedikon.md"]},
+    {"id": 5,  "question": "Was ist die Goldküste von Zürich?", "expected_source": ["kreis_08_riesbach.md", "stadt_zurich_uebersicht.md"]},
+    {"id": 6,  "question": "Welches Quartier liegt am Zürichberg?", "expected_source": ["kreis_07_zuerichberg.md"]},
+    {"id": 7,  "question": "Was kann man über Schwamendingen sagen?", "expected_source": ["kreis_12_schwamendingen.md"]},
+    {"id": 8,  "question": "Welche Quartiere gehören zu Zürich Nord?", "expected_source": ["kreis_11_zuerich_nord.md"]},
+    {"id": 9,  "question": "Wie ist Aussersihl im Kreis 4?", "expected_source": ["kreis_04_aussersihl.md"]},
+    {"id": 10, "question": "Was ist typisch für die Enge und Wollishofen?", "expected_source": ["kreis_02_enge.md"]},
+    {"id": 11, "question": "Beschreibe Höngg und Wipkingen.", "expected_source": ["kreis_10_hoengg.md"]},
+    {"id": 12, "question": "Wie ist Altstetten und Albisrieden?", "expected_source": ["kreis_09_altstetten.md"]},
+    {"id": 13, "question": "Was gibt es über Unterstrass und Oberstrass zu wissen?", "expected_source": ["kreis_06_unterstrass.md"]},
+    {"id": 14, "question": "Wie viele Stadtkreise hat Zürich insgesamt?", "expected_source": ["stadt_zurich_uebersicht.md"]},
+    {"id": 15, "question": "Welcher Kreis hat die höchsten Mietpreise?", "expected_source": ["stadt_zurich_uebersicht.md", "kreis_01_altstadt.md"]},
+    {"id": 16, "question": "Welcher Kreis ist am günstigsten zum Wohnen?", "expected_source": ["stadt_zurich_uebersicht.md", "kreis_12_schwamendingen.md"]},
+    {"id": 17, "question": "Wo in Zürich gibt es viel Nachtleben und Ausgang?", "expected_source": ["kreis_04_aussersihl.md"]},
+    {"id": 18, "question": "Welches Quartier ist bekannt für Familien und Grünflächen?", "expected_source": ["kreis_10_hoengg.md", "kreis_12_schwamendingen.md"]},
+    {"id": 19, "question": "Wo in Zürich liegt die ETH Hönggerberg?", "expected_source": ["kreis_10_hoengg.md"]},
+    {"id": 20, "question": "Welcher Kreis hat Seeanstoss und teure Villen?", "expected_source": ["kreis_08_riesbach.md", "kreis_02_enge.md"]}
+  ]
+}

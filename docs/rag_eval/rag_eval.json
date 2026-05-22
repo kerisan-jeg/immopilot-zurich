@@ -1,0 +1,421 @@
+{
+  "retrieval": {
+    "n": 20,
+    "top_k": 5,
+    "hit_rate": 0.85,
+    "mrr": 0.5041666666666667,
+    "per_question": [
+      {
+        "id": 1,
+        "question": "Welcher Kreis ist die Zürcher Altstadt?",
+        "expected": [
+          "kreis_01_altstadt.md"
+        ],
+        "retrieved": [
+          "stadt_zurich_uebersicht.md",
+          "kreis_03_wiedikon.md",
+          "kreis_09_altstetten.md",
+          "kreis_11_zuerich_nord.md",
+          "kreis_04_aussersihl.md"
+        ],
+        "hit": false,
+        "rank": 0
+      },
+      {
+        "id": 2,
+        "question": "Was zeichnet das Seefeld in Kreis 8 aus?",
+        "expected": [
+          "kreis_08_riesbach.md"
+        ],
+        "retrieved": [
+          "kreis_03_wiedikon.md",
+          "kreis_08_riesbach.md",
+          "stadt_zurich_uebersicht.md",
+          "kreis_12_schwamendingen.md",
+          "kreis_09_altstetten.md"
+        ],
+        "hit": true,
+        "rank": 2
+      },
+      {
+        "id": 3,
+        "question": "Erzähl mir über das Industriequartier (Kreis 5).",
+        "expected": [
+          "kreis_05_industriequartier.md"
+        ],
+        "retrieved": [
+          "kreis_05_industriequartier.md",
+          "kreis_03_wiedikon.md",
+          "kreis_08_riesbach.md",
+          "kreis_12_schwamendingen.md",
+          "kreis_09_altstetten.md"
+        ],
+        "hit": true,
+        "rank": 1
+      },
+      {
+        "id": 4,
+        "question": "Wie ist Wiedikon zum Wohnen?",
+        "expected": [
+          "kreis_03_wiedikon.md"
+        ],
+        "retrieved": [
+          "kreis_07_zuerichberg.md",
+          "kreis_03_wiedikon.md",
+          "kreis_08_riesbach.md",
+          "kreis_10_hoengg.md",
+          "kreis_02_enge.md"
+        ],
+        "hit": true,
+        "rank": 2
+      },
+      {
+        "id": 5,
+        "question": "Was ist die Goldküste von Zürich?",
+        "expected": [
+          "kreis_08_riesbach.md",
+          "stadt_zurich_uebersicht.md"
+        ],
+        "retrieved": [
+          "kreis_07_zuerichberg.md",
+          "stadt_zurich_uebersicht.md",
+          "kreis_11_zuerich_nord.md",
+          "kreis_05_industriequartier.md",
+          "stadt_zurich_uebersicht.md"
+        ],
+        "hit": true,
+        "rank": 2
+      },
+      {
+        "id": 6,
+        "question": "Welches Quartier liegt am Zürichberg?",
+        "expected": [
+          "kreis_07_zuerichberg.md"
+        ],
+        "retrieved": [
+          "kreis_11_zuerich_nord.md",
+          "kreis_07_zuerichberg.md",
+          "kreis_05_industriequartier.md",
+          "kreis_03_wiedikon.md",
+          "kreis_09_altstetten.md"
+        ],
+        "hit": true,
+        "rank": 2
+      },
+      {
+        "id": 7,
+        "question": "Was kann man über Schwamendingen sagen?",
+        "expected": [
+          "kreis_12_schwamendingen.md"
+        ],
+        "retrieved": [
+          "kreis_12_schwamendingen.md",
+          "stadt_zurich_uebersicht.md",
+          "kreis_03_wiedikon.md",
+          "kreis_07_zuerichberg.md",
+          "kreis_08_riesbach.md"
+        ],
+        "hit": true,
+        "rank": 1
+      },
+      {
+        "id": 8,
+        "question": "Welche Quartiere gehören zu Zürich Nord?",
+        "expected": [
+          "kreis_11_zuerich_nord.md"
+        ],
+        "retrieved": [
+          "kreis_07_zuerichberg.md",
+          "kreis_11_zuerich_nord.md",
+          "kreis_05_industriequartier.md",
+          "stadt_zurich_uebersicht.md",
+          "kreis_03_wiedikon.md"
+        ],
+        "hit": true,
+        "rank": 2
+      },
+      {
+        "id": 9,
+        "question": "Wie ist Aussersihl im Kreis 4?",
+        "expected": [
+          "kreis_04_aussersihl.md"
+        ],
+        "retrieved": [
+          "kreis_03_wiedikon.md",
+          "kreis_04_aussersihl.md",
+          "stadt_zurich_uebersicht.md",
+          "kreis_05_industriequartier.md",
+          "kreis_09_altstetten.md"
+        ],
+        "hit": true,
+        "rank": 2
+      },
+      {
+        "id": 10,
+        "question": "Was ist typisch für die Enge und Wollishofen?",
+        "expected": [
+          "kreis_02_enge.md"
+        ],
+        "retrieved": [
+          "stadt_zurich_uebersicht.md",
+          "kreis_04_aussersihl.md",
+          "kreis_02_enge.md",
+          "kreis_05_industriequartier.md",
+          "kreis_09_altstetten.md"
+        ],
+        "hit": true,
+        "rank": 3
+      },
+      {
+        "id": 11,
+        "question": "Beschreibe Höngg und Wipkingen.",
+        "expected": [
+          "kreis_10_hoengg.md"
+        ],
+        "retrieved": [
+          "kreis_10_hoengg.md",
+          "kreis_08_riesbach.md",
+          "kreis_03_wiedikon.md",
+          "kreis_05_industriequartier.md",
+          "kreis_11_zuerich_nord.md"
+        ],
+        "hit": true,
+        "rank": 1
+      },
+      {
+        "id": 12,
+        "question": "Wie ist Altstetten und Albisrieden?",
+        "expected": [
+          "kreis_09_altstetten.md"
+        ],
+        "retrieved": [
+          "kreis_04_aussersihl.md",
+          "kreis_09_altstetten.md",
+          "kreis_08_riesbach.md",
+          "kreis_05_industriequartier.md",
+          "kreis_06_unterstrass.md"
+        ],
+        "hit": true,
+        "rank": 2
+      },
+      {
+        "id": 13,
+        "question": "Was gibt es über Unterstrass und Oberstrass zu wissen?",
+        "expected": [
+          "kreis_06_unterstrass.md"
+        ],
+        "retrieved": [
+          "kreis_06_unterstrass.md",
+          "kreis_04_aussersihl.md",
+          "stadt_zurich_uebersicht.md",
+          "kreis_01_altstadt.md",
+          "kreis_09_altstetten.md"
+        ],
+        "hit": true,
+        "rank": 1
+      },
+      {
+        "id": 14,
+        "question": "Wie viele Stadtkreise hat Zürich insgesamt?",
+        "expected": [
+          "stadt_zurich_uebersicht.md"
+        ],
+        "retrieved": [
+          "kreis_11_zuerich_nord.md",
+          "kreis_05_industriequartier.md",
+          "stadt_zurich_uebersicht.md",
+          "kreis_06_unterstrass.md",
+          "stadt_zurich_uebersicht.md"
+        ],
+        "hit": true,
+        "rank": 3
+      },
+      {
+        "id": 15,
+        "question": "Welcher Kreis hat die höchsten Mietpreise?",
+        "expected": [
+          "kreis_01_altstadt.md",
+          "stadt_zurich_uebersicht.md"
+        ],
+        "retrieved": [
+          "kreis_03_wiedikon.md",
+          "kreis_09_altstetten.md",
+          "kreis_12_schwamendingen.md",
+          "kreis_08_riesbach.md",
+          "kreis_04_aussersihl.md"
+        ],
+        "hit": false,
+        "rank": 0
+      },
+      {
+        "id": 16,
+        "question": "Welcher Kreis ist am günstigsten zum Wohnen?",
+        "expected": [
+          "kreis_12_schwamendingen.md",
+          "stadt_zurich_uebersicht.md"
+        ],
+        "retrieved": [
+          "kreis_03_wiedikon.md",
+          "kreis_09_altstetten.md",
+          "kreis_12_schwamendingen.md",
+          "stadt_zurich_uebersicht.md",
+          "kreis_04_aussersihl.md"
+        ],
+        "hit": true,
+        "rank": 3
+      },
+      {
+        "id": 17,
+        "question": "Wo in Zürich gibt es viel Nachtleben und Ausgang?",
+        "expected": [
+          "kreis_04_aussersihl.md"
+        ],
+        "retrieved": [
+          "stadt_zurich_uebersicht.md",
+          "kreis_06_unterstrass.md",
+          "kreis_11_zuerich_nord.md",
+          "kreis_05_industriequartier.md",
+          "kreis_07_zuerichberg.md"
+        ],
+        "hit": false,
+        "rank": 0
+      },
+      {
+        "id": 18,
+        "question": "Welches Quartier ist bekannt für Familien und Grünflächen?",
+        "expected": [
+          "kreis_10_hoengg.md",
+          "kreis_12_schwamendingen.md"
+        ],
+        "retrieved": [
+          "kreis_03_wiedikon.md",
+          "kreis_09_altstetten.md",
+          "kreis_07_zuerichberg.md",
+          "kreis_12_schwamendingen.md",
+          "kreis_04_aussersihl.md"
+        ],
+        "hit": true,
+        "rank": 4
+      },
+      {
+        "id": 19,
+        "question": "Wo in Zürich liegt die ETH Hönggerberg?",
+        "expected": [
+          "kreis_10_hoengg.md"
+        ],
+        "retrieved": [
+          "kreis_05_industriequartier.md",
+          "stadt_zurich_uebersicht.md",
+          "kreis_10_hoengg.md",
+          "kreis_07_zuerichberg.md",
+          "kreis_11_zuerich_nord.md"
+        ],
+        "hit": true,
+        "rank": 3
+      },
+      {
+        "id": 20,
+        "question": "Welcher Kreis hat Seeanstoss und teure Villen?",
+        "expected": [
+          "kreis_02_enge.md",
+          "kreis_08_riesbach.md"
+        ],
+        "retrieved": [
+          "kreis_08_riesbach.md",
+          "kreis_03_wiedikon.md",
+          "kreis_02_enge.md",
+          "kreis_07_zuerichberg.md",
+          "stadt_zurich_uebersicht.md"
+        ],
+        "hit": true,
+        "rank": 1
+      }
+    ]
+  },
+  "citations": {
+    "n": 20,
+    "citation_rate": 1.0,
+    "per_question": [
+      {
+        "id": 1,
+        "has_citation": true
+      },
+      {
+        "id": 2,
+        "has_citation": true
+      },
+      {
+        "id": 3,
+        "has_citation": true
+      },
+      {
+        "id": 4,
+        "has_citation": true
+      },
+      {
+        "id": 5,
+        "has_citation": true
+      },
+      {
+        "id": 6,
+        "has_citation": true
+      },
+      {
+        "id": 7,
+        "has_citation": true
+      },
+      {
+        "id": 8,
+        "has_citation": true
+      },
+      {
+        "id": 9,
+        "has_citation": true
+      },
+      {
+        "id": 10,
+        "has_citation": true
+      },
+      {
+        "id": 11,
+        "has_citation": true
+      },
+      {
+        "id": 12,
+        "has_citation": true
+      },
+      {
+        "id": 13,
+        "has_citation": true
+      },
+      {
+        "id": 14,
+        "has_citation": true
+      },
+      {
+        "id": 15,
+        "has_citation": true
+      },
+      {
+        "id": 16,
+        "has_citation": true
+      },
+      {
+        "id": 17,
+        "has_citation": true
+      },
+      {
+        "id": 18,
+        "has_citation": true
+      },
+      {
+        "id": 19,
+        "has_citation": true
+      },
+      {
+        "id": 20,
+        "has_citation": true
+      }
+    ]
+  }
+}

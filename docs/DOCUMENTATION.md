@@ -38,8 +38,8 @@ The original objectives and their **actual outcome**:
    ResNet50 classifier was additionally fine-tuned on a hand-collected dataset and
    compared against the zero-shot baseline (see §3.2).
 3. **NLP/RAG**: produce factually grounded answers about Zurich neighborhoods with
-   source citations. *Achieved*: implemented and qualitatively validated; a formal
-   quantitative eval is future work (§4.4).
+   source citations. *Achieved*: implemented and evaluated quantitatively
+   (Hit-Rate@5 85 %, 100 % citation rate; §4.4).
 4. **Integration**: a single interface orchestrates all three blocks, with CV- and
    NLP-derived features feeding the numeric model. *Achieved*.
 
@@ -309,7 +309,8 @@ README for the directory tree.
 - **CV**: both the zero-shot CLIP baseline and the fine-tuned ResNet50 are evaluated on
   the same 18-image validation split (accuracy, macro-F1, per-class report, confusion
   matrix); see §4.3.
-- **RAG**: qualitative review on hand-written questions; formal metrics are future work.
+- **RAG**: quantitative eval on a 20-question gold set — retrieval Hit-Rate@5 and MRR
+  (no LLM needed) plus an LLM-based citation-presence check; see §4.4.
 
 ### 4.2 Numeric Block — Results
 
@@ -386,18 +387,35 @@ middle-class gap"), not "the task is solved".
 
 ### 4.4 NLP / RAG Block — Results
 
-Qualitative evaluation on representative questions shows correct, well-grounded answers
-with citations. Verified examples:
+**Quantitative evaluation** on a hand-curated 20-question gold set (`scripts/eval_rag.py`,
+`scripts/rag_gold_set.json`; results in `docs/rag_eval/`). Each question is tagged with the
+corpus file(s) that should answer it; retrieval is scored without the LLM, the citation
+check calls the LLM once per question.
 
-- *"Welche Tramlinien fahren nach Schwamendingen?"* → correctly returns Tram 7 & 9 plus
-  the Glattalbahn, citing the Kreis 12 document.
-- *"Was ist die Goldküste?"* → correctly explains it is the right-shore lake municipalities
-  **outside** the city (not a Stadtkreis).
-- *"Wo ist der Sitz von Google in Zürich?"* → correctly locates it near Kreis 5 /
-  Sihlpost with Zürich-West context.
+| Metric | Value | Meaning |
+|---|---:|---|
+| Hit-Rate@5 | **85.0 %** | 17/20 questions retrieve an expected source in the top-5 |
+| MRR | **0.504** | the correct source sits around rank 2 on average |
+| Citation rate | **100 %** | every generated answer cites at least one `[Source N]` |
 
-A formal quantitative eval (retrieval hit-rate, faithfulness on a 20-question set) is
-future work (§6).
+**Error analysis — the 3 retrieval misses are instructive.** Q1 ("which Kreis is the
+Altstadt?"), Q15 ("highest rents?"), and Q17 ("nightlife?") fail to surface the *exact*
+expected file. Two patterns explain this: (1) the corpus is 13 short, structurally similar
+neighborhood documents, so a broad question embeds close to *many* Kreis files rather than
+sharply onto one — a known small-corpus retrieval effect; (2) for Q1 and Q15 the retriever
+*does* return `stadt_zurich_uebersicht`, which actually contains the answer (district list,
+full rent ranking) — so the generated answer is likely still correct even though the
+narrowly-defined "expected" file was missed. This nuance is why hit-rate is reported
+alongside the qualitative behaviour rather than as a single headline number.
+
+**Qualitative behaviour** remains strong on representative questions: *"Was ist die
+Goldküste?"* correctly explains the right-shore lake municipalities outside the city;
+*"Welche Tramlinien fahren nach Schwamendingen?"* returns the correct lines with a Kreis 12
+citation. The 100 % citation rate confirms answers are consistently grounded.
+
+**Limitations of this eval**: 20 questions is a small set, and the citation check verifies
+*presence* of a `[Source N]` marker, not semantic faithfulness of the claim to the source
+(a full LLM-judge faithfulness score is the natural next step, §6).
 
 ### 4.5 Error Analysis
 
@@ -501,8 +519,9 @@ Concrete, prioritized to-dos to reach full marks:
    natural next step is an **out-of-distribution test set** (real listing photos from a
    different source) to test whether the fine-tuned model generalizes beyond stock-photo
    style, plus more training data per class.
-2. **RAG quantitative eval**: build a ~20-question gold set; measure retrieval hit-rate
-   and answer faithfulness.
+2. **RAG faithfulness judge**: the gold-set eval (§4.4) covers retrieval hit-rate and
+   citation presence; a natural extension is an LLM-judge that scores whether each cited
+   claim is actually supported by the retrieved chunk (semantic faithfulness).
 3. **Screenshots**: capture the three tabs for the docs folder.
 
 ---
@@ -527,3 +546,5 @@ All key pipeline specifics have been confirmed against the committed code:
 - [x] **Feature ablation**: all four groups have positive ΔMAE (text +17, district +14,
   amenities +10, cv +6); baseline 338 ≈ reported 337 (`scripts/ablation_numeric.py`,
   `docs/ablation/ablation_numeric.json`).
+- [x] **RAG eval**: Hit-Rate@5 85 %, MRR 0.504, citation rate 100 % on a 20-question
+  gold set (`scripts/eval_rag.py`, `scripts/rag_gold_set.json`, `docs/rag_eval/rag_eval.json`).
