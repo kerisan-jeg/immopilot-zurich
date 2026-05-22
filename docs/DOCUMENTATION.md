@@ -66,7 +66,9 @@ Evidence hint: Show where each selected block contributes to the final system.
   in parallel `photos → (CV) → condition features → ML model`; and independently
   `user question → (NLP RAG) → cited answer`.
 
-Pipeline overview: see [`pipeline.py`, lines 130-235](https://github.com/kerisan-jeg/immopilot-zurich/blob/main/src/immopilot/inference/pipeline.py#L130-L235).
+Pipeline overview: see the `predict()` function in
+[`pipeline.py`](https://github.com/kerisan-jeg/immopilot-zurich/blob/main/src/immopilot/inference/pipeline.py#L127)
+(orchestrates parsing → CV features → ML prediction → explanation).
 
 Guidance hint: This section should be short. The detailed work belongs in block sections.
 Evidence hint: Include one clear pipeline overview.
@@ -83,7 +85,12 @@ Evidence hint: Include one clear pipeline overview.
 | --- | --- | --- | --- | --- |
 | 1 | Swiss apartment-rental listings (Kaggle, pre-cleaned to Zurich-relevant rows) | Structured CSV | 664 rows × 33 cols (only 27 in city of Zurich) | Main training data (target = `rent_chf`) |
 | 2 | Statistik Stadt Zürich — Mietpreiserhebung (MPE) 2024, median net rent per Kreis | Structured table | 12 districts | District features + hybrid-calibration prior |
-| 3 | Stadt Zürich open data — Wohndichte / district reference | Structured table | 12 districts | Joined district-level context |
+| 3 | Stadt Zürich MPE 2024 — mean net rent per Kreis (second role of source 2) | Structured table | 12 districts | `rent_mean_chf_per_m2` feature (distinct from the median in source 2) |
+
+The downloader (`load_zurich_open.py`) also fetches two further CC0 Stadt-Zürich
+datasets (Bevölkerung/BEV, Wohndichte), but only the MPE table is currently joined into the
+feature set (`load_district_features()` uses MPE only). BEV/Wohndichte are therefore *not*
+counted as integrated data sources here — listing them would overstate the feature set.
 
 Data not used during the semester (apartment data for the canton of Zurich), per the
 project rules. Loaders: [`load_listings.py`](https://github.com/kerisan-jeg/immopilot-zurich/blob/main/src/immopilot/data/load_listings.py),
@@ -145,7 +152,8 @@ modality contributes.
 Switzerland-wide data with only 27 Zurich rows, it underestimates premium districts. The
 final estimate blends the model with a Stadt-Zürich median prior:
 `final = 0.6 × model + 0.4 × (median_chf_per_m2 × area)`
-([`pipeline.py`, lines 168-190](https://github.com/kerisan-jeg/immopilot-zurich/blob/main/src/immopilot/inference/pipeline.py#L168-L190)).
+(see the *Hybrid calibration* block in
+[`pipeline.py`](https://github.com/kerisan-jeg/immopilot-zurich/blob/main/src/immopilot/inference/pipeline.py#L167)).
 
 #### 2A.5 Evaluation and Error Analysis
 
@@ -398,9 +406,10 @@ Evidence hint: Include exact commands and versions.
 - **Third block (Computer Vision)**: fully implemented as a model comparison — fine-tuned
   ResNet50 vs. zero-shot CLIP on a self-collected 89-image dataset, with confusion matrices
   and an honest in-distribution caveat (Section 2C).
-- **More than two data sources**: Kaggle listings, Stadt-Zürich MPE table, Zurich open-data
-  district reference, a 13-document RAG corpus, and a hand-collected image set — five distinct
-  sources across the three blocks.
+- **More than two data sources**: four integrated sources across the three blocks — Kaggle
+  listings (numeric target + features), the Stadt-Zürich MPE table (district median/mean rent,
+  used both as features and as the calibration prior), a 13-document RAG corpus (NLP), and a
+  hand-collected image set (CV). Each is genuinely consumed by the system.
 - **Core section done exceptionally well**: the hybrid Stadt-Zürich median calibration
   (Section 2A.4) is a non-trivial methodological response to the dataset's distribution shift.
 - **Extended evaluation**: 5-fold cross-validation, a feature-group ablation (ΔMAE per group),
