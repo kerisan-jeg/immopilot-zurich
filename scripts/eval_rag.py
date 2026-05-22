@@ -113,7 +113,7 @@ def main() -> None:
         logger.info("Citation rate: %.3f", citations["citation_rate"])
         results["citations"] = citations
 
-    (OUT_DIR / "rag_eval.json").write_text(json.dumps(results, indent=2, ensure_ascii=False))
+    (OUT_DIR / "rag_eval.json").write_text(json.dumps(results, indent=2, ensure_ascii=False), encoding="utf-8")
 
     # Console summary
     print("\n" + "=" * 50)
