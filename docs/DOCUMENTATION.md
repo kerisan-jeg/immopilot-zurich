@@ -504,10 +504,20 @@ A global seed is set (`config.set_global_seed()`) for deterministic preprocessin
 
 ### 5.4 Screenshots
 
-To be added under `docs/screenshots/`:
-- `01_valuation_tab.png` — input + prediction + calibration breakdown + explanation
-- `02_photo_tab.png` — photo upload + detected features
-- `03_qa_tab.png` — RAG Q&A with cited sources
+The three tabs of the deployed application (`docs/screenshots/`):
+
+**Valuation tab** — structured input, hybrid prediction with confidence interval, and the
+German SHAP+LLM explanation:
+
+![Valuation tab](screenshots/tab1_bewertung.png)
+
+**Photo analysis tab** — upload apartment photos for zero-shot CLIP feature extraction:
+
+![Photo analysis tab](screenshots/tab2_foto.png)
+
+**Q&A tab** — RAG answers about Zurich neighborhoods with cited sources:
+
+![Q&A tab](screenshots/tab3_qa.png)
 
 ---
 
@@ -522,7 +532,6 @@ Concrete, prioritized to-dos to reach full marks:
 2. **RAG faithfulness judge**: the gold-set eval (§4.4) covers retrieval hit-rate and
    citation presence; a natural extension is an LLM-judge that scores whether each cited
    claim is actually supported by the retrieved chunk (semantic faithfulness).
-3. **Screenshots**: capture the three tabs for the docs folder.
 
 ---
 
