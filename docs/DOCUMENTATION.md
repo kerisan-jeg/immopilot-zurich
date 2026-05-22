@@ -152,9 +152,18 @@ final estimate blends the model with a Stadt-Zürich median prior:
 - **Metrics used**: MAE, RMSE, R² on a held-out 10 % test split (stratified by `is_zurich`,
   seed 42), plus 5-fold cross-validated MAE on the training pool.
 - **Final results**: XGBoost — Test MAE **337.4 CHF**, RMSE 634.6, R² **0.775**, CV MAE
-  335.0 ± 3.0.
-- **Error patterns and likely causes**: the MAE misses an aspirational CHF 250 target; the
-  root cause is Zurich-data scarcity (27 rows) — the model learns a Swiss-average price
+  335.0 ± 3.0. These numbers are reproducible from committed artifacts: the frozen test-set
+  predictions and recomputed metrics are in
+  [`docs/repro/`](https://github.com/kerisan-jeg/immopilot-zurich/tree/main/docs/repro)
+  (regenerate with `scripts/freeze_test_predictions.py`); per-model metrics in
+  [`models/*.metrics.json`](https://github.com/kerisan-jeg/immopilot-zurich/tree/main/models).
+- **Test-set composition (important caveat)**: the test split has **67 rows, of which only 3
+  are in the city of Zurich**. The headline R² therefore reflects Swiss-wide accuracy; it is
+  *not* a robust measure of Zurich-specific accuracy, and the stated CHF 250 goal — framed
+  around Zurich — cannot be claimed as met on this evidence. A Zurich-only metric would need a
+  larger Zurich sample than this dataset provides.
+- **Error patterns and likely causes**: the MAE misses the aspirational CHF 250 target; the
+  root cause is Zurich-data scarcity (27 rows total) — the model learns a Swiss-average price
   surface, not a Zurich-specific one. This is mitigated (not solved) by the hybrid median
   calibration. The MLP diverged, consistent with Grinsztajn et al. (NeurIPS 2022) on tabular
   data.
@@ -165,7 +174,17 @@ final estimate blends the model with a Stadt-Zürich median prior:
   NLP parser (area, rooms, Kreis) fill missing inputs; CV-derived `condition_score` and
   `kitchen_quality` enter as numeric features.
 - **Outputs provided to other block(s)**: the prediction and its SHAP feature contributions
-  are passed to the NLP explainer, which renders the German explanation.
+  are passed to the NLP explainer, which renders the German explanation. The model predicts in
+  log space (`log1p`), so raw SHAP values are log-space contributions. They are converted to
+  faithful CHF effects via the inverse transform — for each feature,
+  `c_i = expm1(full_log) − expm1(full_log − shap_i)`, the actual CHF change when that feature's
+  contribution is removed
+  ([`pipeline.py`](https://github.com/kerisan-jeg/immopilot-zurich/blob/main/src/immopilot/inference/pipeline.py)).
+  Because `expm1` is non-linear, the per-feature CHF effects sum only *approximately* to the
+  total prediction (typically within a few percent); they are honest marginal effects, not an
+  exact additive decomposition. For one-hot features (Kreis, size bucket) only the category
+  actually active for the flat is shown, with a readable label, so the explanation never lists
+  "absence" contributions.
 
 Guidance hint: Keep entries practical and evidence-based.
 Evidence hint: Add values, not only claims.
@@ -345,16 +364,20 @@ Evidence hint: Add screenshots or short demo references.
   ```
 - **Evaluation / reproduction**:
   ```bash
+  python scripts/freeze_test_predictions.py  # verify test MAE 337.4 / R² 0.775 from artifacts
   python scripts/recompute_cv.py        # 5-fold CV MAE
   python scripts/ablation_numeric.py    # feature-group ablation
   python scripts/eval_cv.py             # ResNet vs CLIP
   python scripts/eval_rag.py            # RAG hit-rate / MRR / citations
   ```
+  The committed `data/processed/features.parquet` plus `models/*.metrics.json` and
+  `docs/repro/` let a grader verify the headline numbers without the raw Kaggle download.
+  (Trained `.joblib`/`.pt` artifacts are not committed for size reasons; retrain via the
+  training commands above, or run `freeze_test_predictions.py` against a local model.)
 - **Reproducibility notes**: all seeds fixed to 42
   ([`config.py`](https://github.com/kerisan-jeg/immopilot-zurich/blob/main/src/immopilot/config.py));
   pinned dependencies in
-  [`requirements.txt`](https://github.com/kerisan-jeg/immopilot-zurich/blob/main/requirements.txt)
-  (the Space uses `pyarrow==19.0.1` and `python_version 3.12`).
+  [`requirements.txt`](https://github.com/kerisan-jeg/immopilot-zurich/blob/main/requirements.txt).
 
 Guidance hint: Another person should be able to run your project from this section.
 Evidence hint: Include exact commands and versions.
