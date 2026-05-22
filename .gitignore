@@ -68,3 +68,8 @@ mlruns/
 # --- HF cache ---
 .cache/
 !data/raw/rag_corpus/
+
+# --- Allow small artifacts for reproducibility (added for submission) ---
+!models/*.metrics.json
+!data/processed/features.parquet
+!data/processed/zurich_districts.parquet
