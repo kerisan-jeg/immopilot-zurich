@@ -45,7 +45,7 @@ in Section 5 (Optional Bonus Evidence), with its full technical detail in Sectio
 - **Goal**: A single web app that (a) estimates monthly net rent for a Zurich apartment from
   structured inputs, an optional listing text, and optional photos; (b) explains the estimate
   in plain German; and (c) answers questions about Zurich neighborhoods with cited sources.
-- **Success criteria**: a working deployed app; rent prediction with R² > 0.75 on a held-out
+- **Success criteria**: a working deployed app; an aspirational MAE target of ~CHF 250 (flagged up front as unlikely given Zurich-data scarcity); rent prediction with R² > 0.75 on a held-out
   test set; a grounded, source-citing Q&A; transparent, honest treatment of the model's
   limitations (the dataset is Switzerland-wide with few Zurich rows).
 
@@ -65,7 +65,7 @@ in Section 5 (Optional Bonus Evidence), with its full technical detail in Sectio
   `user question → (NLP RAG) → cited answer`.
 
 Pipeline overview: see the `predict()` function in
-[`pipeline.py`](https://github.com/kerisan-jeg/immopilot-zurich/blob/main/src/immopilot/inference/pipeline.py#L127)
+[`pipeline.py`](https://github.com/kerisan-jeg/immopilot-zurich/blob/main/src/immopilot/inference/pipeline.py#L129)
 (orchestrates parsing → CV features → ML prediction → explanation).
 
 ---
@@ -129,7 +129,7 @@ course example. Loaders:
 [`01_eda_numeric.ipynb`](https://github.com/kerisan-jeg/immopilot-zurich/blob/main/notebooks/01_eda_numeric.ipynb), 7 plots):
 raw rent skewness **2.41** (motivates log target); strong location effect — a **64 % spread**
 from the most expensive Kreis (1 = 36.3 CHF/m²) to the cheapest (12 = 22.1 CHF/m²); the key
-data caveat — only **27 / 664** rows are in the city of Zurich.
+data caveat — only **27 / 664** rows are in the city of Zurich, and those 27 rows cover only **8 of the 12 Kreise** (districts 1, 7, 8, 12 have no training listing).
 
 #### 2A.3 Model Selection
 
@@ -184,7 +184,7 @@ Switzerland-wide data with only 27 Zurich rows, it underestimates premium distri
 final estimate blends the model with a Stadt-Zürich median prior:
 `final = 0.6 × model + 0.4 × (median_chf_per_m2 × area)`
 (see the *Hybrid calibration* block in
-[`pipeline.py`](https://github.com/kerisan-jeg/immopilot-zurich/blob/main/src/immopilot/inference/pipeline.py#L167)).
+[`pipeline.py`](https://github.com/kerisan-jeg/immopilot-zurich/blob/main/src/immopilot/inference/pipeline.py#L169)).
 
 #### 2A.5 Evaluation and Error Analysis
 
@@ -332,7 +332,7 @@ Not used during the semester (apartment interior images). Split 80/20 (seed 42) 
 | Iteration | Objective | Key changes | Model(s) used | Main metric | Change vs previous |
 | --- | --- | --- | --- | --- | --- |
 | 1 | Zero-shot baseline | condition prompts, argmax | CLIP zero-shot | Acc 0.72 / macro-F1 0.66 | — |
-| 2 | Fine-tune | ResNet50, frozen backbone, augmentation | ResNet50 | Acc 1.00 / macro-F1 1.00 (best epoch, val) | +0.34 F1 |
+| 2 | Fine-tune | ResNet50, frozen backbone, augmentation | ResNet50 | final-epoch macro-F1 0.836 (best-epoch 1.00 on 18-img val - not generalizable) | see note |
 
 Note on the ResNet number: 1.00 is the **best-epoch** score on the 18-image validation
 set — i.e. the epoch was selected *using the same set it is scored on*. The final-epoch

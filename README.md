@@ -125,9 +125,9 @@ caveat in `docs/DOCUMENTATION.md` §2A.5. Verify from committed artifacts with
 | Model | Accuracy | Macro-F1 |
 |---|---:|---:|
 | CLIP zero-shot | 0.72 | 0.66 |
-| ResNet50 fine-tuned | 1.00 | 1.00 |
+| ResNet50 fine-tuned | 0.83* | 0.84* |
 
-The perfect ResNet score is an in-distribution artifact (small, stock-photo-style
+*Final-epoch macro-F1 shown; the best-epoch checkpoint reached 1.00 on the 18-image validation set but that is an in-distribution artifact (small, stock-photo-style
 val set — see §2C.5). The deployed app uses zero-shot CLIP, which degrades more
 gracefully on real uploads.
 
