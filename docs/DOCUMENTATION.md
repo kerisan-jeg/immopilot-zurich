@@ -162,8 +162,11 @@ untuned XGBoost with n_estimators=400 to isolate feature effects, so it is highe
 champion's 308.6; the ablation measures *feature-group* contribution, not the final model). These
 values reproduce exactly in the pinned environment (XGBoost 2.1.1, seed 42); the *exact* ΔMAE
 magnitudes are somewhat sensitive to the XGBoost build and BLAS thread count, so the robust
-conclusion is the **direction and rough ranking** (text and district are the largest contributors),
-not the precise CHF deltas.
+conclusion is narrower than the exact CHF deltas: **text is consistently the largest
+contributor**, and **cv is consistently the smallest**; the middle groups (district, amenities)
+are close together and their relative order is build-sensitive (a clean Linux run with different
+BLAS threading can put district as low as +4 and below amenities). So the robust reading is "text
+dominates, cv is marginal," not a precise ranking of the middle groups.
 
 **Important caveat on the CV group.** The CV-derived columns `condition_score` and
 `kitchen_quality` are **constant (0.5) across all 664 training rows**, because the Kaggle listings
