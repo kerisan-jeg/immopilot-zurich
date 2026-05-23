@@ -111,10 +111,10 @@ immopilot-zurich/
 
 | Model | MAE (CHF) | RMSE | R² | Notes |
 |---|---:|---:|---:|---|
-| Linear (Ridge) | 428.0 | — | 0.721 | baseline |
-| Random Forest | 365.4 | — | 0.751 | |
-| XGBoost | **337.4** | 634.6 | **0.775** | champion (Optuna-tuned) |
-| MLP (PyTorch) | 3870 | — | −196 | diverged on small tabular data |
+| Linear (Ridge) | 427.6 | — | 0.720 | baseline |
+| Random Forest | 364.4 | — | 0.748 | |
+| XGBoost | **308.6** | 603.1 | **0.797** | champion (Optuna-tuned, leakage-free) |
+| MLP (PyTorch) | 4148 | — | −243 | diverged (not a fair baseline) |
 
 Test split: 67 rows (10%, seed 42), of which 3 are in the city of Zurich — see the
 caveat in `docs/DOCUMENTATION.md` §2A.5. Verify from committed artifacts with

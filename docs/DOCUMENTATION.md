@@ -111,13 +111,12 @@ course example. Loaders:
   ([`build_features.py::make_preprocessor`](https://github.com/kerisan-jeg/immopilot-zurich/blob/main/src/immopilot/features/build_features.py)).
   The target is log-transformed (`np.log1p`, inverse `np.expm1`) because the raw rent
   distribution is right-skewed (skewness 2.41 → roughly symmetric after log).
-  *Known limitation (mild preprocessing leakage)*: the persisted preprocessor is currently
-  fit on the full feature table in `build_features.main` before the train/test split, so the
-  imputation medians and scaler statistics see the test rows. This is **not** target leakage
-  (the rent target is never used to fit the transformer), and the effect on the reported MAE/R²
-  is expected to be small, but it does make the test metrics slightly optimistic. The clean fix
-  is to fit the preprocessor inside a `Pipeline` on the training fold only; this is noted as
-  future work rather than retro-fitted here to avoid invalidating the frozen artifacts.
+  *No preprocessing leakage*: the persisted preprocessor is fit on the **train+val pool only**,
+  replicating the held-out test split (seed 42, stratified by `is_zurich`) before fitting, so
+  imputation medians and scaler statistics never see the test rows
+  ([`build_features.main`](https://github.com/kerisan-jeg/immopilot-zurich/blob/main/src/immopilot/features/build_features.py#L230)).
+  An earlier version fit the transformer on the full table; that was corrected and all metrics
+  were re-frozen on the leakage-free preprocessor (the headline numbers in 2A.5 reflect this).
 - **Feature engineering and selection**: 25 features in four groups — engineered
   (`area_per_room`, `building_age`, `years_since_renovation`, `size_bucket`), district
   (`rent_median/mean_chf_per_m2`, `location_kreis`, `is_zurich`), amenities (balcony, view,
@@ -143,21 +142,24 @@ data caveat — only **27 / 664** rows are in the city of Zurich.
 
 | Iteration | Objective | Key changes | Models used | Main metric | Change vs previous |
 | --- | --- | --- | --- | --- | --- |
-| 1 | Baseline | Ridge regression on all features | Linear (Ridge) | Test MAE 428.0 / R² 0.721 | — |
-| 2 | Non-linear | Bagging trees | Random Forest | Test MAE 365.4 / R² 0.751 | −62.6 CHF MAE |
-| 3 | Boosting + tuning | XGBoost, Optuna 50 trials | XGBoost (champion) | **Test MAE 337.4 / R² 0.775** | −28.0 CHF MAE |
-| 4 | Deep net check | Small MLP | MLP | Test MAE 3870 / R² −196 (run diverged) | excluded — not a fair baseline |
+| 1 | Baseline | Ridge regression on all features | Linear (Ridge) | Test MAE 427.6 / R² 0.720 | — |
+| 2 | Non-linear | Bagging trees | Random Forest | Test MAE 364.4 / R² 0.748 | −63.2 CHF MAE |
+| 3 | Boosting + tuning | XGBoost, Optuna 50 trials | XGBoost (champion) | **Test MAE 308.6 / R² 0.797** | −55.8 CHF MAE |
+| 4 | Deep net check | Small MLP | MLP | Test MAE 4148 / R² −243 (run diverged) | excluded — not a fair baseline |
 
-Cross-validated MAE (5-fold, training pool): Linear 418.8 ± 26.0, RF 379.0 ± 18.2,
-**XGBoost 335.0 ± 3.0**. XGBoost wins on every metric and has the lowest fold-to-fold spread,
-and its test MAE (337) ≈ CV mean (335), so the test split is representative. (The exact CV std
-is mildly platform-dependent — re-runs on other machines land around 333 ± 5; the point is the
-*relative* stability versus Linear/RF, not the precise ±3.) CV recomputed via
+Cross-validated MAE (5-fold, training pool): Linear 418.2 ± 25.3, RF 378.4 ± 18.2,
+**XGBoost 325.2 ± 6.4**. XGBoost wins on every metric and has the lowest fold-to-fold spread,
+and its test MAE (309) ≈ CV mean (325), so the test split is representative. (The exact CV std
+is mildly platform-dependent; the robust point is the *relative* stability versus Linear/RF.)
+CV recomputed via
 [`recompute_cv.py`](https://github.com/kerisan-jeg/immopilot-zurich/blob/main/scripts/recompute_cv.py).
 
 **Feature-group ablation** ([`ablation_numeric.py`](https://github.com/kerisan-jeg/immopilot-zurich/blob/main/scripts/ablation_numeric.py)):
 dropping each group and retraining gives positive ΔMAE for **all** groups — text +17.1,
-district +13.5, amenities +9.8, cv +5.6 (baseline 338.2 ≈ reported 337) — confirming every
+district +13.5, amenities +9.8, cv +5.6 (ablation baseline 338.2 — this uses a fixed untuned
+XGBoost with n_estimators=400 to isolate feature effects, so it is higher than the tuned
+champion's 308.6; the ablation measures *feature-group* contribution, not the final model) —
+confirming every
 modality contributes. These values reproduce exactly in the pinned environment (XGBoost 2.1.1,
 seed 42); the *exact* ΔMAE magnitudes are somewhat sensitive to the XGBoost build and BLAS
 thread count (a different environment can shift e.g. district toward +4–13), so the robust,
@@ -175,16 +177,17 @@ final estimate blends the model with a Stadt-Zürich median prior:
 
 - **Metrics used**: MAE, RMSE, R² on a held-out 10 % test split (stratified by `is_zurich`,
   seed 42), plus 5-fold cross-validated MAE on the training pool.
-- **Final results**: XGBoost — Test MAE **337.4 CHF**, RMSE 634.6, R² **0.775**, CV MAE
-  335.0 ± 3.0. These numbers are reproducible from committed artifacts: the trained
+- **Final results**: XGBoost — Test MAE **308.6 CHF**, RMSE 603.1, R² **0.797**, CV MAE
+  325.2 ± 6.4. These numbers are reproducible from committed artifacts: the trained
   `models/xgboost.joblib` + `models/preprocessor.joblib` and the feature table are committed, so
   `scripts/freeze_test_predictions.py` regenerates the frozen predictions and metrics in
   [`docs/repro/`](https://github.com/kerisan-jeg/immopilot-zurich/tree/main/docs/repro)
   directly from the repo; per-model summaries in
   [`models/*.metrics.json`](https://github.com/kerisan-jeg/immopilot-zurich/tree/main/models).
-  Note: the R² 0.775 is the **Optuna-tuned** model (50 trials). Re-training XGBoost from
-  scratch with library-default hyper-parameters yields a lower R² (~0.67); the tuning is part
-  of the result, which is why the tuned model itself is committed rather than only the features.
+  These are the **leakage-free** results: the preprocessor is fit on the train+val pool only
+  (see 2A.2), so no test statistics leak into imputation/scaling. Note: the R² 0.797 is the
+  **Optuna-tuned** model (50 trials); re-training with library-default hyper-parameters yields a
+  lower R², so the tuned model itself is committed rather than only the features.
 - **Test-set composition (important caveat)**: the test split has **67 rows, of which only 3
   are in the city of Zurich**. The headline R² therefore reflects Swiss-wide accuracy; it is
   *not* a robust measure of Zurich-specific accuracy, and the stated CHF 250 goal — framed
@@ -401,7 +404,7 @@ index). At serving time the app only *loads* these artifacts and runs `predict()
   ```
 - **Evaluation / reproduction**:
   ```bash
-  python scripts/freeze_test_predictions.py  # verify test MAE 337.4 / R² 0.775 from artifacts
+  python scripts/freeze_test_predictions.py  # verify test MAE 308.6 / R² 0.797 from artifacts
   python scripts/recompute_cv.py        # 5-fold CV MAE
   python scripts/ablation_numeric.py    # feature-group ablation
   python scripts/eval_cv.py             # ResNet vs CLIP

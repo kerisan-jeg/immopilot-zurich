@@ -229,7 +229,16 @@ def main() -> None:
 
     preprocessor = make_preprocessor()
     X_cols = NUMERIC_FEATURES + CATEGORICAL_FEATURES + BINARY_LISTINGS + TEXT_DERIVED_BINARY
-    preprocessor.fit(df[X_cols])
+    # Leakage fix: fit the preprocessor on the train+val pool only (everything
+    # except the held-out test split), so imputation/scaling statistics never
+    # see test rows. Replicates make_splits' first split (seed 42, stratified by
+    # is_zurich) inline to avoid a circular import with models._common.
+    from sklearn.model_selection import train_test_split
+    _strat = df["is_zurich"] if "is_zurich" in df.columns else None
+    df_pool, _df_test = train_test_split(
+        df, test_size=config.TEST_SIZE, random_state=config.SEED, stratify=_strat
+    )
+    preprocessor.fit(df_pool[X_cols])
     joblib.dump(preprocessor, config.MODELS_DIR / "preprocessor.joblib")
     logger.info("Persisted preprocessor.joblib (%d output features)",
                 preprocessor.transform(df[X_cols].head(1)).shape[1])
