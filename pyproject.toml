@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "immopilot"
 version = "0.1.0"
 description = "Multimodal apartment-rent assistant for Zurich"
-authors = [{name = "Your Name", email = "you@example.com"}]
+authors = [{name = "kerisan-jeg", email = "jegatker@students.zhaw.ch"}]
 readme = "README.md"
 requires-python = ">=3.11"
 license = {text = "MIT"}

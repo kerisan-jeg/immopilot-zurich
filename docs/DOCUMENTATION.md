@@ -83,7 +83,7 @@ Evidence hint: Include one clear pipeline overview.
 
 | Entry | Source name or link | Type | Size | Role in this block |
 | --- | --- | --- | --- | --- |
-| 1 | Swiss apartment-rental listings (Kaggle, pre-cleaned to Zurich-relevant rows) | Structured CSV | 664 rows × 33 cols (only 27 in city of Zurich) | Main training data (target = `rent_chf`) |
+| 1 | Swiss apartment-rental listings — Kaggle `fredeys/immoscout24-ch-switzerland-rental-property-dataset` (Switzerland-wide, pre-cleaned to Zurich-relevant rows) | Structured CSV | 664 rows × 33 cols (only 27 in city of Zurich) | Main training data (target = `rent_chf`) |
 | 2 | Statistik Stadt Zürich — Mietpreiserhebung (MPE) 2024, median net rent per Kreis | Structured table | 12 districts | District features + hybrid-calibration prior |
 | 3 | Stadt Zürich MPE 2024 — mean net rent per Kreis (second role of source 2) | Structured table | 12 districts | `rent_mean_chf_per_m2` feature (distinct from the median in source 2) |
 
@@ -92,8 +92,17 @@ datasets (Bevölkerung/BEV, Wohndichte), but only the MPE table is currently joi
 feature set (`load_district_features()` uses MPE only). BEV/Wohndichte are therefore *not*
 counted as integrated data sources here — listing them would overstate the feature set.
 
-Data not used during the semester (apartment data for the canton of Zurich), per the
-project rules. Loaders: [`load_listings.py`](https://github.com/kerisan-jeg/immopilot-zurich/blob/main/src/immopilot/data/load_listings.py),
+**Delineation from the course material.** The semester used an apartment-price example for
+Zurich (the `kuhs/apartment` demo, with a Kreis split and `luxurious`/`temporary`/`furnished`
+features). This project deliberately does **not** reuse that data or setup: the numeric block
+is built on a *different, Switzerland-wide* Kaggle dataset
+(`fredeys/immoscout24-ch-switzerland-rental-property-dataset`), merged with a *different*
+open-data source (Statistik Stadt Zürich MPE rent per Kreis — not the course's demographic
+data). The forbidden course dataset ("apartments, canton of Zurich") is **not** used. Beyond
+the numeric block, the NLP (RAG + LLM listing parser + SHAP explainer) and Computer-Vision
+(CLIP / ResNet condition scoring) blocks are entirely new and have no counterpart in the
+course example. Loaders:
+[`load_listings.py`](https://github.com/kerisan-jeg/immopilot-zurich/blob/main/src/immopilot/data/load_listings.py),
 [`load_zurich_open.py`](https://github.com/kerisan-jeg/immopilot-zurich/blob/main/src/immopilot/data/load_zurich_open.py).
 
 #### 2A.2 Preprocessing and Features
