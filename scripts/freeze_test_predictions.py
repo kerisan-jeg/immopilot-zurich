@@ -7,7 +7,7 @@ test set, and writes:
   docs/repro/test_predictions.csv  — y_true, y_pred (CHF) per test row
   docs/repro/test_metrics.json     — MAE / RMSE / R2 recomputed from that CSV
 
-This lets a grader verify the headline numbers (MAE ~337, R2 ~0.775) directly
+This lets a grader verify the headline numbers (MAE ~309, R2 ~0.797) directly
 from committed artifacts, without needing the raw Kaggle download.
 
 Usage:  python scripts/freeze_test_predictions.py

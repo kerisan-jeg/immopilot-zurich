@@ -57,7 +57,8 @@ in Section 5 (Optional Bonus Evidence), with its full technical detail in Sectio
   contributions into a German natural-language explanation). A second NLP component (RAG Q&A)
   shares the same Zurich district knowledge base used by the ML calibration. The **CV block
   (bonus)** contributes derived photo features (`condition_score`, `kitchen_quality`) as
-  additional numeric inputs.
+  additional numeric inputs at inference time (constant in the photo-less training data — see the
+  CV caveat in 2A.4).
 - **Data and output flow between blocks**:
   `listing text → (NLP parser) → structured features → ML model → rent estimate → (NLP explainer) → German explanation`;
   in parallel `photos → (CV) → condition features → ML model`; and independently
@@ -155,16 +156,25 @@ CV recomputed via
 [`recompute_cv.py`](https://github.com/kerisan-jeg/immopilot-zurich/blob/main/scripts/recompute_cv.py).
 
 **Feature-group ablation** ([`ablation_numeric.py`](https://github.com/kerisan-jeg/immopilot-zurich/blob/main/scripts/ablation_numeric.py)):
-dropping each group and retraining gives positive ΔMAE for **all** groups — text +17.1,
-district +13.5, amenities +9.8, cv +5.6 (ablation baseline 338.2 — this uses a fixed untuned
-XGBoost with n_estimators=400 to isolate feature effects, so it is higher than the tuned
-champion's 308.6; the ablation measures *feature-group* contribution, not the final model) —
-confirming every
-modality contributes. These values reproduce exactly in the pinned environment (XGBoost 2.1.1,
-seed 42); the *exact* ΔMAE magnitudes are somewhat sensitive to the XGBoost build and BLAS
-thread count (a different environment can shift e.g. district toward +4–13), so the robust,
-environment-independent conclusion is the **direction and rough ranking** (every group helps;
-text and district are the largest contributors), not the precise CHF deltas.
+dropping each group and retraining gives positive ΔMAE for text +17.1,
+district +13.5, amenities +9.8, and a small cv +5.6 (ablation baseline 338.2 — this uses a fixed
+untuned XGBoost with n_estimators=400 to isolate feature effects, so it is higher than the tuned
+champion's 308.6; the ablation measures *feature-group* contribution, not the final model). These
+values reproduce exactly in the pinned environment (XGBoost 2.1.1, seed 42); the *exact* ΔMAE
+magnitudes are somewhat sensitive to the XGBoost build and BLAS thread count, so the robust
+conclusion is the **direction and rough ranking** (text and district are the largest contributors),
+not the precise CHF deltas.
+
+**Important caveat on the CV group.** The CV-derived columns `condition_score` and
+`kitchen_quality` are **constant (0.5) across all 664 training rows**, because the Kaggle listings
+carry no photos — only the live app supplies real photo scores at inference time. A zero-variance
+feature cannot be split on, so the trained XGBoost learns nothing from these columns, and the small
+cv +5.6 in the ablation is an artefact of XGBoost's column-subsampling (`colsample_bytree`) draw
+changing when the columns are removed, **not** a genuine signal contribution. We therefore do *not*
+claim that the CV modality improves the trained numeric model: the CV→ML wiring is real and active
+at inference (a user's photos do produce non-default scores), but on the current photo-less training
+data it carries no learned signal. Enriching the training rows with real per-listing CV scores is
+the natural fix and is noted as future work.
 
 **Hybrid calibration** (methodological contribution): because the model is trained on
 Switzerland-wide data with only 27 Zurich rows, it underestimates premium districts. The
@@ -197,8 +207,8 @@ final estimate blends the model with a Stadt-Zürich median prior:
   root cause is Zurich-data scarcity (27 rows total) — the model learns a Swiss-average price
   surface, not a Zurich-specific one. This is mitigated (not solved) by the hybrid median
   calibration. The MLP was **not** a fair deep-learning baseline: its run diverged (test
-  RMSE 18792 ≫ MAE 3870 indicates a few exploded predictions in log space, i.e. a training
-  pathology — likely learning-rate / output-scaling), so its R² −196 reflects a broken run, not
+  RMSE 20919 ≫ MAE 4148 indicates a few exploded predictions in log space, i.e. a training
+  pathology — likely learning-rate / output-scaling), so its R² −243 reflects a broken run, not
   evidence that trees beat neural nets on tabular data. We report it for transparency but do not
   draw a DL-vs-trees conclusion from it; a fair comparison would require debugging the MLP
   (output clipping, LR schedule) and is left as future work.
@@ -207,7 +217,10 @@ final estimate blends the model with a Stadt-Zürich median prior:
 
 - **Inputs received from other block(s)**: structured fields parsed from listing text by the
   NLP parser (area, rooms, Kreis) fill missing inputs; CV-derived `condition_score` and
-  `kitchen_quality` enter as numeric features.
+  `kitchen_quality` enter as numeric features at inference time (these are constant 0.5 in the
+  photo-less training data, so the trained model carries no learned signal for them — see the CV
+  caveat in 2A.4; the wiring is active for real user photos but does not currently improve the
+  fitted model).
 - **Outputs provided to other block(s)**: the prediction and its SHAP feature contributions
   are passed to the NLP explainer, which renders the German explanation. The model predicts in
   log space (`log1p`), so raw SHAP values are log-space contributions. They are converted to
