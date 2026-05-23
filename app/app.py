@@ -555,7 +555,7 @@ with gr.Blocks(title="ImmoPilot Zürich", theme=THEME, css=CSS) as demo:
     gr.HTML(
         f"""
 <div id="ip-footer">
-  <strong>Stack</strong> · XGBoost (Mietprognose · MAE 337 CHF, R² 0.78) · CLIP zero-shot (Foto-Merkmale) ·
+  <strong>Stack</strong> · XGBoost (Mietprognose · MAE 309 CHF, R² 0.80) · CLIP zero-shot (Foto-Merkmale) ·
   FAISS + sentence-transformers (RAG Q&A) · {config.LLM_PROVIDER.title()} {config.ANTHROPIC_MODEL if config.LLM_PROVIDER=='anthropic' else config.OPENAI_MODEL} (Erklärung + Q&A)<br>
   <strong>Kalibrierung</strong> · Hybrid-Schätzung mit Stadt-Zürich-Median (60% Modell, 40% Median × Fläche)
   zur Korrektur des Distribution-Shift bei Premium-Lagen.<br>
