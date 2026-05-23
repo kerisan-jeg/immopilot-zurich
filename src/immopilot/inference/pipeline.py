@@ -99,7 +99,9 @@ def _load_district_medians() -> dict[int, float]:
 
 
 def _interval(point: float, residual_std_chf: float = 240.0) -> tuple[float, float]:
-    """Quick & defensible 80% interval based on observed residual std on the val set."""
+    """Rough 80% interval using a fixed heuristic spread (~240 CHF, the rough scale of
+    typical residuals). NOT a calibrated predictive interval; it is input-independent and
+    only conveys ballpark uncertainty in the UI."""
     return point - 1.28 * residual_std_chf, point + 1.28 * residual_std_chf
 
 

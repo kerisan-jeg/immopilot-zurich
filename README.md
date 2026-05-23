@@ -102,7 +102,7 @@ immopilot-zurich/
 ├── tests/                     ← pytest smoke tests
 ├── scripts/                   ← eval + reproduction scripts
 ├── data/                      ← .gitignored except small processed tables
-└── models/                    ← .gitignored (retrain via `make train`); metrics JSONs committed
+└── models/                    ← xgboost.joblib + preprocessor.joblib + metrics JSONs committed; large models (RF, ResNet) gitignored (retrain via `make train`)
 ```
 
 ---

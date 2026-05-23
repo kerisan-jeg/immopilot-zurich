@@ -32,9 +32,6 @@ Primary blocks used for core solution (choose 2):
 The third block (Computer Vision) is implemented and documented separately as extra work
 in Section 5 (Optional Bonus Evidence), with its full technical detail in Section 2C.
 
-Guidance hint: Keep the project idea short and consistent. Focus most details on the selected blocks.
-Evidence hint: Show where each selected block contributes to the final system.
-
 ---
 
 ## 1. Project Foundation (Short)
@@ -69,9 +66,6 @@ Evidence hint: Show where each selected block contributes to the final system.
 Pipeline overview: see the `predict()` function in
 [`pipeline.py`](https://github.com/kerisan-jeg/immopilot-zurich/blob/main/src/immopilot/inference/pipeline.py#L127)
 (orchestrates parsing → CV features → ML prediction → explanation).
-
-Guidance hint: This section should be short. The detailed work belongs in block sections.
-Evidence hint: Include one clear pipeline overview.
 
 ---
 
@@ -164,7 +158,11 @@ is mildly platform-dependent — re-runs on other machines land around 333 ± 5;
 **Feature-group ablation** ([`ablation_numeric.py`](https://github.com/kerisan-jeg/immopilot-zurich/blob/main/scripts/ablation_numeric.py)):
 dropping each group and retraining gives positive ΔMAE for **all** groups — text +17.1,
 district +13.5, amenities +9.8, cv +5.6 (baseline 338.2 ≈ reported 337) — confirming every
-modality contributes.
+modality contributes. These values reproduce exactly in the pinned environment (XGBoost 2.1.1,
+seed 42); the *exact* ΔMAE magnitudes are somewhat sensitive to the XGBoost build and BLAS
+thread count (a different environment can shift e.g. district toward +4–13), so the robust,
+environment-independent conclusion is the **direction and rough ranking** (every group helps;
+text and district are the largest contributors), not the precise CHF deltas.
 
 **Hybrid calibration** (methodological contribution): because the model is trained on
 Switzerland-wide data with only 27 Zurich rows, it underestimates premium districts. The
@@ -219,9 +217,6 @@ final estimate blends the model with a Stadt-Zürich median prior:
   exact additive decomposition. For one-hot features (Kreis, size bucket) only the category
   actually active for the flat is shown, with a readable label, so the explanation never lists
   "absence" contributions.
-
-Guidance hint: Keep entries practical and evidence-based.
-Evidence hint: Add values, not only claims.
 
 ### 2B. NLP (selected — primary)
 
@@ -283,9 +278,6 @@ RAG corpus: [`data/raw/rag_corpus/`](https://github.com/kerisan-jeg/immopilot-zu
   drive the German explanation; user listing text is the parser's input.
 - **Outputs provided to other block(s)**: parsed structured fields (area, rooms, Kreis) fill
   missing ML inputs — a direct NLP→ML feature contribution.
-
-Guidance hint: Show concrete prompt or retrieval decisions.
-Evidence hint: Include representative outputs or failure cases.
 
 ### 2C. Computer Vision (bonus — documented as extra work)
 
@@ -360,9 +352,6 @@ confusion matrices in [`docs/cv_eval/`](https://github.com/kerisan-jeg/immopilot
   `has_balcony`, `has_view` enter the ML model as additional numeric features
   ([`zero_shot_clip.py`](https://github.com/kerisan-jeg/immopilot-zurich/blob/main/src/immopilot/cv/zero_shot_clip.py)).
 
-Guidance hint: Use concise examples from real predictions.
-Evidence hint: Include sample outputs and observed failure cases.
-
 ---
 
 ## 3. Deployment
@@ -381,9 +370,6 @@ Evidence hint: Include sample outputs and observed failure cases.
 index). At serving time the app only *loads* these artifacts and runs `predict()` /
 `answer()` — no training on the server. Deployment is a Hugging Face Gradio Space (Python
 3.12, CPU); the `ANTHROPIC_API_KEY` is a Space secret.
-
-Guidance hint: Deployment must be usable.
-Evidence hint: Add screenshots or short demo references.
 
 ---
 
@@ -421,17 +407,16 @@ Evidence hint: Add screenshots or short demo references.
   python scripts/eval_cv.py             # ResNet vs CLIP
   python scripts/eval_rag.py            # RAG hit-rate / MRR / citations
   ```
-  The committed `data/processed/features.parquet` plus `models/*.metrics.json` and
-  `docs/repro/` let a grader verify the headline numbers without the raw Kaggle download.
-  (Trained `.joblib`/`.pt` artifacts are not committed for size reasons; retrain via the
-  training commands above, or run `freeze_test_predictions.py` against a local model.)
+  The committed `data/processed/features.parquet`, `models/*.metrics.json`, the trained
+  `models/xgboost.joblib` + `models/preprocessor.joblib`, and `docs/repro/` let a grader verify
+  the headline numbers directly with `python scripts/freeze_test_predictions.py` — no raw Kaggle
+  download needed. (The larger artifacts — `random_forest.joblib`, `resnet50_condition.pt` — and
+  the raw images are *not* committed for size/licensing reasons; retrain those via the training
+  commands above.)
 - **Reproducibility notes**: all seeds fixed to 42
   ([`config.py`](https://github.com/kerisan-jeg/immopilot-zurich/blob/main/src/immopilot/config.py));
   pinned dependencies in
   [`requirements.txt`](https://github.com/kerisan-jeg/immopilot-zurich/blob/main/requirements.txt).
-
-Guidance hint: Another person should be able to run your project from this section.
-Evidence hint: Include exact commands and versions.
 
 ---
 
