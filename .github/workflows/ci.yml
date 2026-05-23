@@ -23,7 +23,7 @@ jobs:
           python -m pip install --upgrade pip
           # Lightweight subset: enough to import the package and run the smoke tests.
           # The smoke tests need no trained models, data, or API keys.
-          pip install numpy pandas scikit-learn xgboost joblib python-dotenv pyyaml ruff pytest
+          pip install numpy==1.26.4 pandas==2.2.3 scikit-learn==1.5.2 xgboost==2.1.1 joblib==1.4.2 python-dotenv==1.0.1 pyyaml==6.0.2 ruff==0.7.0 pytest==8.3.3
 
       - name: Lint with ruff (blocking)
         env:

@@ -122,7 +122,7 @@ def _coerce_numeric(s: pd.Series) -> pd.Series:
         return pd.to_numeric(s, errors="coerce")
     cleaned = (
         s.astype("string")
-        .str.replace(r"[\u2019']", "", regex=True)
+        .str.replace(r"[’']", "", regex=True)
         .str.replace(r"[^\d.,\-]", "", regex=True)
         .str.replace(r"[.,]-+$", "", regex=True)
         .str.replace(r"^-+|-+$", "", regex=True)
